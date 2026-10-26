@@ -460,7 +460,7 @@ export default function CinematicStory({
     // =========================================================================
     // 2. MOBILE EXPERIENCE (max-width: 1023px)
     // Discrete sequential full-screen (100svh) sections that appear ONE AFTER ANOTHER
-    // Native touch scroll with smooth video reveals, no sticky scroll traps
+    // Native touch scroll with smooth video reveals, clip-path apertures, and scale transitions
     // =========================================================================
     mm.add('(max-width: 1023px)', () => {
       // Clear desktop properties so scenes render in natural vertical flow
@@ -471,7 +471,7 @@ export default function CinematicStory({
         clearProps: 'transform,scale,opacity',
       })
 
-      // Mobile Scene 1
+      // Mobile Scene 1 Playback Trigger
       ScrollTrigger.create({
         trigger: scene1,
         start: 'top 60%',
@@ -492,23 +492,56 @@ export default function CinematicStory({
         },
       })
 
-      // Mobile Scene 2 Reveal: Smooth fade and subtle zoom
+      // Mobile Scene 2 Transition (Entering over Scene 1 with clip-path, fade, and zoom)
       if (video2 && scene2) {
         gsap.fromTo(
+          scene2,
+          { clipPath: 'inset(10% 0% 0% 0%)' },
+          {
+            clipPath: 'inset(0% 0% 0% 0%)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: scene2,
+              start: 'top 95%',
+              end: 'top 15%',
+              scrub: 0.8,
+            },
+          }
+        )
+
+        gsap.fromTo(
           video2,
-          { scale: 1.1, opacity: 0.65 },
+          { scale: 1.12, opacity: 0.4 },
           {
             scale: 1.0,
             opacity: 1,
             ease: 'none',
             scrollTrigger: {
               trigger: scene2,
-              start: 'top 85%',
-              end: 'center center',
+              start: 'top 95%',
+              end: 'top 15%',
               scrub: 0.8,
             },
           }
         )
+
+        if (video1) {
+          gsap.fromTo(
+            video1,
+            { scale: 1.0, opacity: 1 },
+            {
+              scale: 0.95,
+              opacity: 0.2,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: scene2,
+                start: 'top 95%',
+                end: 'top 15%',
+                scrub: 0.8,
+              },
+            }
+          )
+        }
 
         const s2Words = content2?.querySelectorAll('.scene-heading .word-inner')
         const s2Sub = content2?.querySelector('.scene-subtitle')
@@ -518,7 +551,7 @@ export default function CinematicStory({
           const tl2 = gsap.timeline({
             scrollTrigger: {
               trigger: scene2,
-              start: 'top 60%',
+              start: 'top 55%',
               toggleActions: 'play none none reverse',
             },
           })
@@ -553,23 +586,56 @@ export default function CinematicStory({
         })
       }
 
-      // Mobile Scene 3 Reveal: Layered crossfade and subtle zoom
+      // Mobile Scene 3 Transition (Entering over Scene 2 with layered crossfade, clip-path, and scale)
       if (video3 && scene3) {
         gsap.fromTo(
+          scene3,
+          { clipPath: 'inset(10% 0% 0% 0%)' },
+          {
+            clipPath: 'inset(0% 0% 0% 0%)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: scene3,
+              start: 'top 95%',
+              end: 'top 15%',
+              scrub: 0.8,
+            },
+          }
+        )
+
+        gsap.fromTo(
           video3,
-          { scale: 1.08, opacity: 0.6 },
+          { scale: 1.10, opacity: 0.4 },
           {
             scale: 1.0,
             opacity: 1,
             ease: 'none',
             scrollTrigger: {
               trigger: scene3,
-              start: 'top 85%',
-              end: 'center center',
+              start: 'top 95%',
+              end: 'top 15%',
               scrub: 0.8,
             },
           }
         )
+
+        if (video2) {
+          gsap.fromTo(
+            video2,
+            { scale: 1.0, opacity: 1 },
+            {
+              scale: 0.95,
+              opacity: 0.2,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: scene3,
+                start: 'top 95%',
+                end: 'top 15%',
+                scrub: 0.8,
+              },
+            }
+          )
+        }
 
         const s3Words = content3?.querySelectorAll('.scene-heading .word-inner')
         const s3Sub = content3?.querySelector('.scene-subtitle')
@@ -580,7 +646,7 @@ export default function CinematicStory({
           const tl3 = gsap.timeline({
             scrollTrigger: {
               trigger: scene3,
-              start: 'top 60%',
+              start: 'top 55%',
               toggleActions: 'play none none reverse',
             },
           })
@@ -616,23 +682,56 @@ export default function CinematicStory({
         })
       }
 
-      // Mobile Scene 4 Reveal: Slow cinematic zoom & elegant fade
+      // Mobile Scene 4 Transition (Slow cinematic zoom, fade, and clip-path entrance)
       if (video4 && scene4) {
         gsap.fromTo(
+          scene4,
+          { clipPath: 'inset(10% 0% 0% 0%)' },
+          {
+            clipPath: 'inset(0% 0% 0% 0%)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: scene4,
+              start: 'top 95%',
+              end: 'top 15%',
+              scrub: 0.8,
+            },
+          }
+        )
+
+        gsap.fromTo(
           video4,
-          { scale: 1.12, opacity: 0.5 },
+          { scale: 1.14, opacity: 0.35 },
           {
             scale: 1.0,
             opacity: 1,
             ease: 'none',
             scrollTrigger: {
               trigger: scene4,
-              start: 'top 85%',
-              end: 'center center',
+              start: 'top 95%',
+              end: 'top 15%',
               scrub: 0.8,
             },
           }
         )
+
+        if (video3) {
+          gsap.fromTo(
+            video3,
+            { scale: 1.0, opacity: 1 },
+            {
+              scale: 0.95,
+              opacity: 0.2,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: scene4,
+                start: 'top 95%',
+                end: 'top 15%',
+                scrub: 0.8,
+              },
+            }
+          )
+        }
 
         const s4Words = content4?.querySelectorAll('.scene-heading .word-inner')
         const s4Sub = content4?.querySelector('.scene-subtitle')
@@ -679,7 +778,7 @@ export default function CinematicStory({
         })
       }
 
-      // Hide HUD when scrolled past story into Forest Journey on mobile
+      // Hide HUD and pause all videos when scrolled past story into Forest Journey on mobile
       if (containerRef.current) {
         ScrollTrigger.create({
           trigger: containerRef.current,
@@ -699,7 +798,15 @@ export default function CinematicStory({
       }
     })
 
+    const handleResize = () => {
+      ScrollTrigger.refresh()
+    }
+    window.addEventListener('resize', handleResize)
+    window.addEventListener('orientationchange', handleResize)
+
     return () => {
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('orientationchange', handleResize)
       mm.revert()
       ScrollTrigger.refresh()
     }
@@ -727,7 +834,7 @@ export default function CinematicStory({
       {/* Pinned Stage Viewport on Desktop; Natural Sequential Scroll on Mobile */}
       <div
         ref={stageRef}
-        className="relative w-full h-auto lg:h-[100svh] lg:overflow-hidden bg-[#060b08]"
+        className="relative w-full h-auto lg:h-[100svh] overflow-visible lg:overflow-hidden bg-[#060b08]"
       >
         {/* Floating Global Cinematic HUD / Progress Bar */}
         <div
@@ -781,7 +888,7 @@ export default function CinematicStory({
         </div>
 
         {/* 4 Cinematic Scenes:
-            On Mobile: 4 consecutive full-screen (100svh) sections that appear ONE AFTER ANOTHER.
+            On Mobile: 4 consecutive full-screen (100svh with 100vh fallback) sections that appear ONE AFTER ANOTHER.
             On Desktop: 4 layered pinned scenes with expanding lens, crossfade, and slow-zoom. */}
         {scenes.map((scene, idx) => (
           <section
@@ -790,9 +897,13 @@ export default function CinematicStory({
             ref={(el) => {
               sceneRefs.current[idx] = el
             }}
-            className={`scene-slide relative lg:absolute lg:inset-0 w-full min-h-[100vh] h-[100svh] flex items-center justify-center overflow-hidden ${
+            className={`scene-slide relative lg:absolute lg:inset-0 w-full h-mobile-fullscreen flex items-center justify-center overflow-hidden ${
               idx === 0 ? 'lg:z-10' : idx === 1 ? 'lg:z-20' : idx === 2 ? 'lg:z-30' : 'lg:z-40'
             }`}
+            style={{
+              minHeight: '100vh',
+              height: '100svh',
+            }}
           >
             {/* Full-bleed Video Background */}
             <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -806,6 +917,11 @@ export default function CinematicStory({
                 loop
                 preload="metadata"
                 className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
               />
 
               {/* Cinematic Gradient Overlays for High Legibility on Mobile & Desktop */}

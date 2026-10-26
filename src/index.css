@@ -171,19 +171,27 @@
   }
 }
 
+/* Responsive full-screen cinematic section with svh support and vh fallback */
+.h-mobile-fullscreen {
+  height: 100vh;
+  height: 100dvh;
+  height: 100svh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100svh;
+}
+
 /* Hardware-accelerated cinematic video scene slide */
 .scene-slide {
   will-change: transform, opacity, clip-path;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transform: translateZ(0);
 }
 
 .scene-slide video {
   will-change: transform, opacity;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transform: translateZ(0);
 }
 
 /* Custom scrollbar */
