@@ -116,7 +116,7 @@ export default function Navbar({
             {/* Plan Your Safari CTA */}
             <button
               onClick={onNavigateToEnquiry}
-              className="btn-gold text-[11px] px-5 py-2.5 rounded-full"
+              className="btn-gold text-[11px] px-4 sm:px-5 py-2.5 min-h-[44px] rounded-full flex items-center justify-center"
             >
               Plan Your Safari
             </button>
@@ -124,7 +124,7 @@ export default function Navbar({
             {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2.5 rounded-full border border-white/20 text-white hover:text-[#c5a059] hover:border-[#c5a059]"
+              className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-white/20 text-white hover:text-[#c5a059] hover:border-[#c5a059] transition-colors"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -135,8 +135,17 @@ export default function Navbar({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-30 lg:hidden bg-[#060b08]/95 backdrop-blur-2xl flex flex-col justify-center px-8">
-          <div className="flex flex-col gap-6 text-center">
+        <div className="fixed inset-0 z-50 lg:hidden bg-[#060b08]/98 backdrop-blur-2xl flex flex-col justify-center px-8">
+          {/* Top Close Button for convenient one-tap dismissal */}
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="absolute top-6 right-6 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-white/20 text-white/80 hover:text-white"
+            aria-label="Close navigation menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="flex flex-col gap-5 sm:gap-6 text-center">
             <span className="text-[10px] tracking-[0.3em] uppercase text-[#c5a059] font-medium">
               Navigation
             </span>

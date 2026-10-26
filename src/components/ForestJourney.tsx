@@ -296,7 +296,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Layer 4: Foreground Framing Foliage (Parallax Left) */}
         <div
           ref={sec5LeavesLeftRef}
-          className="absolute -left-12 bottom-0 w-80 md:w-[480px] h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-90"
+          className="absolute -left-12 bottom-0 w-52 sm:w-80 md:w-[480px] h-[380px] sm:h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-75 sm:opacity-90"
         >
           <svg viewBox="0 0 400 500" className="w-full h-full fill-[#040805]">
             <path d="M0,500 C80,450 160,380 180,260 C200,140 130,50 40,0 C20,70 10,180 0,280 Z" opacity="0.95" />
@@ -308,7 +308,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Layer 5: Foreground Framing Foliage (Parallax Right) */}
         <div
           ref={sec5LeavesRightRef}
-          className="absolute -right-12 bottom-0 w-80 md:w-[480px] h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-90"
+          className="absolute -right-12 bottom-0 w-52 sm:w-80 md:w-[480px] h-[380px] sm:h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-75 sm:opacity-90"
         >
           <svg viewBox="0 0 400 500" className="w-full h-full fill-[#040805]">
             <path d="M400,500 C320,450 240,380 220,260 C200,140 270,50 360,0 C380,70 390,180 400,280 Z" opacity="0.95" />
@@ -344,7 +344,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
       <section
         ref={sec6Ref}
         id="section-wildlife-reveal"
-        className="relative w-full h-[100svh] min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+        className="relative w-full h-[100svh] min-h-[560px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
       >
         {/* Full-bleed Majestic Wildlife Image */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -379,7 +379,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Minimalist Wildlife Caption Overlay (Positioned Bottom-Left) */}
         <div
           ref={sec6ContentRef}
-          className="scene-content absolute left-6 sm:left-12 md:left-20 bottom-16 sm:bottom-24 z-20 max-w-xl text-left"
+          className="scene-content absolute left-6 right-6 sm:left-12 sm:right-auto md:left-20 bottom-12 sm:bottom-24 z-20 max-w-xl text-left"
         >
           <div className="scene-pill inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/70 backdrop-blur-md mb-4">
             <Eye className="w-3.5 h-3.5 text-[#c5a059]" />

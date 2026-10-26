@@ -101,31 +101,30 @@ export default function CinematicStory({
     scenes.forEach((_, idx) => pauseVideo(idx))
   }
 
-  // Smooth programmatic scroll to scene target
+  // Smooth programmatic scroll to scene target on both mobile and desktop
   const scrollToScene = (idx: number) => {
-    if (isReducedMotion() || !masterScrollTriggerRef.current) {
+    if (isReducedMotion() || window.innerWidth < 1024 || !masterScrollTriggerRef.current) {
       const el = document.getElementById(scenes[idx]?.id)
       el?.scrollIntoView({ behavior: 'smooth' })
       return
     }
 
     const st = masterScrollTriggerRef.current
-    // Normalized target progress in the pinned scrub timeline
     const targets = [0.0, 0.333, 0.666, 1.0]
     const targetProgress = targets[idx] ?? 0
     const targetY = st.start + (st.end - st.start) * targetProgress
     window.scrollTo({ top: targetY, behavior: 'smooth' })
   }
 
-  // Master GSAP pinned cinematic documentary transitions
+  // Master GSAP animations with matchMedia (Desktop Pinned Transitions vs Mobile Sequential Full-Screen Scenes)
   useEffect(() => {
     const motionPref = isReducedMotion()
 
     // Play first video initially
     playVideo(0)
 
-    // Reduced motion fallback: simple sequential triggers
     if (motionPref) {
+      // Reduced motion: basic visibility without movement
       const triggers: ScrollTrigger[] = []
       scenes.forEach((_, index) => {
         const el = document.getElementById(`scene-${index + 1}`)
@@ -156,7 +155,6 @@ export default function CinematicStory({
 
     if (!containerRef.current || !stageRef.current) return
 
-    // Scene elements
     const scene1 = sceneRefs.current[0]
     const scene2 = sceneRefs.current[1]
     const scene3 = sceneRefs.current[2]
@@ -172,49 +170,7 @@ export default function CinematicStory({
     const content3 = contentRefs.current[2]
     const content4 = contentRefs.current[3]
 
-    // Set initial layout & visibility states
-    if (scene1) gsap.set(scene1, { opacity: 1, zIndex: 10 })
-    if (scene2) {
-      gsap.set(scene2, {
-        clipPath: 'circle(0% at 50% 50%)',
-        opacity: 1,
-        zIndex: 20,
-      })
-    }
-    if (scene3) {
-      gsap.set(scene3, {
-        clipPath: 'inset(100% 0% 0% 0%)',
-        opacity: 0,
-        zIndex: 30,
-      })
-    }
-    if (scene4) {
-      gsap.set(scene4, {
-        opacity: 0,
-        zIndex: 40,
-      })
-    }
-
-    if (video1) gsap.set(video1, { scale: 1.0, opacity: 1 })
-    if (video2) gsap.set(video2, { scale: 1.08, opacity: 1 })
-    if (video3) gsap.set(video3, { scale: 1.06, opacity: 1 })
-    if (video4) gsap.set(video4, { scale: 1.14, opacity: 1 })
-
-    // Hide upcoming text content initially
-    ;[content2, content3, content4].forEach((c) => {
-      if (c) {
-        const pill = c.querySelector('.scene-pill')
-        const words = c.querySelectorAll('.scene-heading .word-inner')
-        const sub = c.querySelector('.scene-subtitle')
-        const cta = c.querySelector('.scene-cta')
-        if (pill) gsap.set(pill, { opacity: 0, y: -12 })
-        if (words.length > 0) gsap.set(words, { opacity: 0, y: '105%', letterSpacing: '0.05em' })
-        if (sub) gsap.set(sub, { opacity: 0, y: 20 })
-        if (cta) gsap.set(cta, { opacity: 0, y: 15 })
-      }
-    })
-
-    // Initial load opening reveal for Scene 1
+    // Initial Scene 1 opening animation on load (both mobile and desktop)
     if (content1) {
       const s1Pill = content1.querySelector('.scene-pill')
       const s1Words = content1.querySelectorAll('.scene-heading .word-inner')
@@ -233,266 +189,518 @@ export default function CinematicStory({
       if (s1Prompt) gsap.fromTo(s1Prompt, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.65, delay: 0.6, ease: 'power2.out' })
     }
 
-    // Video manager based on scrub progress
-    const updatePlayback = (progress: number) => {
-      // Determine active scene for HUD and indicators
-      let currentScene = 0
-      if (progress < 0.22) currentScene = 0
-      else if (progress < 0.55) currentScene = 1
-      else if (progress < 0.85) currentScene = 2
-      else currentScene = 3
+    const mm = gsap.matchMedia()
 
-      if (currentScene !== activeSceneRef.current) {
-        activeSceneRef.current = currentScene
-        setActiveScene(currentScene)
+    // =========================================================================
+    // 1. DESKTOP EXPERIENCE (min-width: 1024px)
+    // Pinned documentary master transitions: expanding circular mask, vertical cross-wipe, slow zoom
+    // =========================================================================
+    mm.add('(min-width: 1024px)', () => {
+      // Set initial desktop states
+      if (scene1) gsap.set(scene1, { opacity: 1, zIndex: 10 })
+      if (scene2) {
+        gsap.set(scene2, {
+          clipPath: 'circle(0% at 50% 50%)',
+          opacity: 1,
+          zIndex: 20,
+        })
+      }
+      if (scene3) {
+        gsap.set(scene3, {
+          clipPath: 'inset(100% 0% 0% 0%)',
+          opacity: 0,
+          zIndex: 30,
+        })
+      }
+      if (scene4) {
+        gsap.set(scene4, {
+          opacity: 0,
+          zIndex: 40,
+        })
       }
 
-      // Smart video pre-roll & play/pause:
-      // Never play more than 2 videos simultaneously to preserve memory & GPU
-      if (progress < 0.08) {
-        playVideo(0)
-        pauseVideo(1)
-        pauseVideo(2)
-        pauseVideo(3)
-      } else if (progress < 0.38) {
-        playVideo(0)
-        playVideo(1)
-        pauseVideo(2)
-        pauseVideo(3)
-      } else if (progress < 0.44) {
-        pauseVideo(0)
-        playVideo(1)
-        pauseVideo(2)
-        pauseVideo(3)
-      } else if (progress < 0.72) {
-        pauseVideo(0)
-        playVideo(1)
-        playVideo(2)
-        pauseVideo(3)
-      } else if (progress < 0.78) {
-        pauseVideo(0)
-        pauseVideo(1)
-        playVideo(2)
-        pauseVideo(3)
-      } else if (progress <= 1.0) {
-        pauseVideo(0)
-        pauseVideo(1)
-        playVideo(2)
-        playVideo(3)
-      }
-    }
+      if (video1) gsap.set(video1, { scale: 1.0, opacity: 1 })
+      if (video2) gsap.set(video2, { scale: 1.08, opacity: 1 })
+      if (video3) gsap.set(video3, { scale: 1.06, opacity: 1 })
+      if (video4) gsap.set(video4, { scale: 1.14, opacity: 1 })
 
-    // Master Timeline pinned over 280vh of scroll distance
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: '+=280%',
-        pin: true,
-        scrub: 0.85,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          updatePlayback(self.progress)
+      // Hide upcoming desktop content initially
+      ;[content2, content3, content4].forEach((c) => {
+        if (c) {
+          const pill = c.querySelector('.scene-pill')
+          const words = c.querySelectorAll('.scene-heading .word-inner')
+          const sub = c.querySelector('.scene-subtitle')
+          const cta = c.querySelector('.scene-cta')
+          if (pill) gsap.set(pill, { opacity: 0, y: -12 })
+          if (words.length > 0) gsap.set(words, { opacity: 0, y: '105%', letterSpacing: '0.05em' })
+          if (sub) gsap.set(sub, { opacity: 0, y: 20 })
+          if (cta) gsap.set(cta, { opacity: 0, y: 15 })
+        }
+      })
+
+      const updatePlayback = (progress: number) => {
+        let currentScene = 0
+        if (progress < 0.22) currentScene = 0
+        else if (progress < 0.55) currentScene = 1
+        else if (progress < 0.85) currentScene = 2
+        else currentScene = 3
+
+        if (currentScene !== activeSceneRef.current) {
+          activeSceneRef.current = currentScene
+          setActiveScene(currentScene)
+        }
+
+        if (progress < 0.08) {
+          playVideo(0)
+          pauseVideo(1)
+          pauseVideo(2)
+          pauseVideo(3)
+        } else if (progress < 0.38) {
+          playVideo(0)
+          playVideo(1)
+          pauseVideo(2)
+          pauseVideo(3)
+        } else if (progress < 0.44) {
+          pauseVideo(0)
+          playVideo(1)
+          pauseVideo(2)
+          pauseVideo(3)
+        } else if (progress < 0.72) {
+          pauseVideo(0)
+          playVideo(1)
+          playVideo(2)
+          pauseVideo(3)
+        } else if (progress < 0.78) {
+          pauseVideo(0)
+          pauseVideo(1)
+          playVideo(2)
+          pauseVideo(3)
+        } else if (progress <= 1.0) {
+          pauseVideo(0)
+          pauseVideo(1)
+          playVideo(2)
+          playVideo(3)
+        }
+      }
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: '+=280%',
+          pin: true,
+          scrub: 0.85,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            updatePlayback(self.progress)
+          },
+          onEnter: () => {
+            setIsInStory(true)
+            playVideo(activeSceneRef.current)
+          },
+          onEnterBack: () => {
+            setIsInStory(true)
+            playVideo(activeSceneRef.current)
+          },
+          onLeave: () => {
+            setIsInStory(false)
+            pauseAllVideos()
+          },
+          onLeaveBack: () => {
+            setIsInStory(false)
+            pauseAllVideos()
+          },
         },
-        onEnter: () => {
-          setIsInStory(true)
-          playVideo(activeSceneRef.current)
-        },
-        onEnterBack: () => {
-          setIsInStory(true)
-          playVideo(activeSceneRef.current)
-        },
-        onLeave: () => {
-          setIsInStory(false)
-          pauseAllVideos()
-        },
-        onLeaveBack: () => {
-          setIsInStory(false)
-          pauseAllVideos()
-        },
-      },
+      })
+
+      masterScrollTriggerRef.current = tl.scrollTrigger || null
+
+      // TRANSITION 1: Second Video — Expanding Circular Reveal & Scale (t: 0 to 1)
+      if (content1) {
+        tl.to(content1, { y: -25, opacity: 0, duration: 0.22, ease: 'power2.in' }, 0.12)
+      }
+      if (scene2) {
+        tl.fromTo(
+          scene2,
+          { clipPath: 'circle(0% at 50% 50%)' },
+          { clipPath: 'circle(150% at 50% 50%)', duration: 0.65, ease: 'power2.inOut' },
+          0.18
+        )
+      }
+      if (video2) {
+        tl.fromTo(
+          video2,
+          { scale: 1.08 },
+          { scale: 1.0, duration: 0.65, ease: 'power2.out' },
+          0.18
+        )
+      }
+      if (video1) {
+        tl.to(video1, { opacity: 0.15, scale: 0.96, duration: 0.5, ease: 'power2.inOut' }, 0.22)
+      }
+      if (content2) {
+        const pill = content2.querySelector('.scene-pill')
+        const words = content2.querySelectorAll('.scene-heading .word-inner')
+        const sub = content2.querySelector('.scene-subtitle')
+
+        if (pill) {
+          tl.fromTo(pill, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.14, ease: 'power2.out' }, 0.62)
+        }
+        if (words.length > 0) {
+          tl.fromTo(
+            words,
+            { opacity: 0, y: '105%', letterSpacing: '0.05em' },
+            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.24, stagger: 0.02, ease: 'power3.out' },
+            0.66
+          )
+        }
+        if (sub) {
+          tl.fromTo(sub, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }, 0.74)
+        }
+      }
+
+      // TRANSITION 2: Third Video — Layered Cross-Transition (t: 1 to 2)
+      if (content2) {
+        tl.to(content2, { y: -25, opacity: 0, duration: 0.22, ease: 'power2.in' }, 1.12)
+      }
+      if (scene3) {
+        tl.fromTo(
+          scene3,
+          { clipPath: 'inset(100% 0% 0% 0%)', opacity: 0 },
+          { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.62, ease: 'power2.inOut' },
+          1.22
+        )
+      }
+      if (video3) {
+        tl.fromTo(
+          video3,
+          { scale: 1.06 },
+          { scale: 1.0, duration: 0.62, ease: 'power2.out' },
+          1.22
+        )
+      }
+      if (video2) {
+        tl.to(video2, { opacity: 0, scale: 0.97, duration: 0.48, ease: 'power2.inOut' }, 1.32)
+      }
+      if (content3) {
+        const pill = content3.querySelector('.scene-pill')
+        const words = content3.querySelectorAll('.scene-heading .word-inner')
+        const sub = content3.querySelector('.scene-subtitle')
+        const cta = content3.querySelector('.scene-cta')
+
+        if (pill) {
+          tl.fromTo(pill, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.14, ease: 'power2.out' }, 1.62)
+        }
+        if (words.length > 0) {
+          tl.fromTo(
+            words,
+            { opacity: 0, y: '105%', letterSpacing: '0.05em' },
+            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.24, stagger: 0.02, ease: 'power3.out' },
+            1.66
+          )
+        }
+        if (sub) {
+          tl.fromTo(sub, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }, 1.74)
+        }
+        if (cta) {
+          tl.fromTo(cta, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 1.80)
+        }
+      }
+
+      // TRANSITION 3: Fourth Video — Immersive Scene Change (t: 2 to 3)
+      if (content3) {
+        tl.to(content3, { y: -25, opacity: 0, duration: 0.22, ease: 'power2.in' }, 2.12)
+      }
+      if (scene4) {
+        tl.fromTo(
+          scene4,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.58, ease: 'power2.inOut' },
+          2.22
+        )
+      }
+      if (video4) {
+        tl.fromTo(
+          video4,
+          { scale: 1.14 },
+          { scale: 1.0, duration: 0.65, ease: 'power2.out' },
+          2.22
+        )
+      }
+      if (scene3) {
+        tl.to(scene3, { opacity: 0, duration: 0.45, ease: 'power2.inOut' }, 2.32)
+      }
+      if (content4) {
+        const pill = content4.querySelector('.scene-pill')
+        const words = content4.querySelectorAll('.scene-heading .word-inner')
+        const sub = content4.querySelector('.scene-subtitle')
+        const cta = content4.querySelector('.scene-cta')
+
+        if (pill) {
+          tl.fromTo(pill, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.14, ease: 'power2.out' }, 2.68)
+        }
+        if (words.length > 0) {
+          tl.fromTo(
+            words,
+            { opacity: 0, y: '105%', letterSpacing: '0.05em' },
+            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.24, stagger: 0.02, ease: 'power3.out' },
+            2.72
+          )
+        }
+        if (sub) {
+          tl.fromTo(sub, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }, 2.80)
+        }
+        if (cta) {
+          tl.fromTo(cta, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 2.86)
+        }
+      }
     })
 
-    masterScrollTriggerRef.current = tl.scrollTrigger || null
-
-    // Normalized duration = 3.0 (1.0 unit per transition)
     // =========================================================================
-    // TRANSITION 1: Second Video — Expanding Circular Reveal & Scale (t: 0 to 1)
+    // 2. MOBILE EXPERIENCE (max-width: 1023px)
+    // Discrete sequential full-screen (100svh) sections that appear ONE AFTER ANOTHER
+    // Native touch scroll with smooth video reveals, no sticky scroll traps
     // =========================================================================
-    // Scene 1 text gently drifts up and fades out
-    if (content1) {
-      tl.to(content1, { y: -25, opacity: 0, duration: 0.22, ease: 'power2.in' }, 0.12)
-    }
+    mm.add('(max-width: 1023px)', () => {
+      // Clear desktop properties so scenes render in natural vertical flow
+      gsap.set([scene1, scene2, scene3, scene4], {
+        clearProps: 'clipPath,zIndex,opacity,transform',
+      })
+      gsap.set([video1, video2, video3, video4], {
+        clearProps: 'transform,scale,opacity',
+      })
 
-    // Scene 2 expanding circle mask reveal (0% -> 150%)
-    if (scene2) {
-      tl.fromTo(
-        scene2,
-        { clipPath: 'circle(0% at 50% 50%)' },
-        { clipPath: 'circle(150% at 50% 50%)', duration: 0.65, ease: 'power2.inOut' },
-        0.18
-      )
-    }
+      // Mobile Scene 1
+      ScrollTrigger.create({
+        trigger: scene1,
+        start: 'top 60%',
+        end: 'bottom 40%',
+        onEnter: () => {
+          setActiveScene(0)
+          playVideo(0)
+          pauseVideo(1)
+          pauseVideo(2)
+          pauseVideo(3)
+        },
+        onEnterBack: () => {
+          setActiveScene(0)
+          playVideo(0)
+          pauseVideo(1)
+          pauseVideo(2)
+          pauseVideo(3)
+        },
+      })
 
-    // Scene 2 video subtle scale down (1.08 -> 1.0)
-    if (video2) {
-      tl.fromTo(
-        video2,
-        { scale: 1.08 },
-        { scale: 1.0, duration: 0.65, ease: 'power2.out' },
-        0.18
-      )
-    }
-
-    // Scene 1 video dims/fades away underneath
-    if (video1) {
-      tl.to(video1, { opacity: 0.15, scale: 0.96, duration: 0.5, ease: 'power2.inOut' }, 0.22)
-    }
-
-    // Scene 2 text reveals after mask expands
-    if (content2) {
-      const pill = content2.querySelector('.scene-pill')
-      const words = content2.querySelectorAll('.scene-heading .word-inner')
-      const sub = content2.querySelector('.scene-subtitle')
-
-      if (pill) {
-        tl.fromTo(pill, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.14, ease: 'power2.out' }, 0.62)
-      }
-      if (words.length > 0) {
-        tl.fromTo(
-          words,
-          { opacity: 0, y: '105%', letterSpacing: '0.05em' },
-          { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.24, stagger: 0.02, ease: 'power3.out' },
-          0.66
+      // Mobile Scene 2 Reveal: Smooth fade and subtle zoom
+      if (video2 && scene2) {
+        gsap.fromTo(
+          video2,
+          { scale: 1.1, opacity: 0.65 },
+          {
+            scale: 1.0,
+            opacity: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: scene2,
+              start: 'top 85%',
+              end: 'center center',
+              scrub: 0.8,
+            },
+          }
         )
+
+        const s2Words = content2?.querySelectorAll('.scene-heading .word-inner')
+        const s2Sub = content2?.querySelector('.scene-subtitle')
+        const s2Pill = content2?.querySelector('.scene-pill')
+
+        if (s2Words && s2Words.length > 0) {
+          const tl2 = gsap.timeline({
+            scrollTrigger: {
+              trigger: scene2,
+              start: 'top 60%',
+              toggleActions: 'play none none reverse',
+            },
+          })
+          if (s2Pill) tl2.fromTo(s2Pill, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.45 })
+          tl2.fromTo(
+            s2Words,
+            { opacity: 0, y: '100%', letterSpacing: '0.04em' },
+            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.75, stagger: 0.04, ease: 'power3.out' },
+            '-=0.25'
+          )
+          if (s2Sub) tl2.fromTo(s2Sub, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.35')
+        }
+
+        ScrollTrigger.create({
+          trigger: scene2,
+          start: 'top 60%',
+          end: 'bottom 40%',
+          onEnter: () => {
+            setActiveScene(1)
+            playVideo(1)
+            pauseVideo(0)
+            pauseVideo(2)
+            pauseVideo(3)
+          },
+          onEnterBack: () => {
+            setActiveScene(1)
+            playVideo(1)
+            pauseVideo(0)
+            pauseVideo(2)
+            pauseVideo(3)
+          },
+        })
       }
-      if (sub) {
-        tl.fromTo(sub, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }, 0.74)
-      }
-    }
 
-    // =========================================================================
-    // TRANSITION 2: Third Video — Layered Cross-Transition (t: 1 to 2)
-    // =========================================================================
-    // Scene 2 text fades out upward
-    if (content2) {
-      tl.to(content2, { y: -25, opacity: 0, duration: 0.22, ease: 'power2.in' }, 1.12)
-    }
-
-    // Scene 3 layered cross-transition:
-    // Vertical clip-path wipe + cross-fade + scale settle
-    if (scene3) {
-      tl.fromTo(
-        scene3,
-        { clipPath: 'inset(100% 0% 0% 0%)', opacity: 0 },
-        { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.62, ease: 'power2.inOut' },
-        1.22
-      )
-    }
-
-    // Scene 3 video subtle scale (1.06 -> 1.0)
-    if (video3) {
-      tl.fromTo(
-        video3,
-        { scale: 1.06 },
-        { scale: 1.0, duration: 0.62, ease: 'power2.out' },
-        1.22
-      )
-    }
-
-    // Scene 2 video fades out underneath, creating soft documentary dissolve
-    if (video2) {
-      tl.to(video2, { opacity: 0, scale: 0.97, duration: 0.48, ease: 'power2.inOut' }, 1.32)
-    }
-
-    // Scene 3 text reveals as scene 3 becomes visible
-    if (content3) {
-      const pill = content3.querySelector('.scene-pill')
-      const words = content3.querySelectorAll('.scene-heading .word-inner')
-      const sub = content3.querySelector('.scene-subtitle')
-      const cta = content3.querySelector('.scene-cta')
-
-      if (pill) {
-        tl.fromTo(pill, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.14, ease: 'power2.out' }, 1.62)
-      }
-      if (words.length > 0) {
-        tl.fromTo(
-          words,
-          { opacity: 0, y: '105%', letterSpacing: '0.05em' },
-          { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.24, stagger: 0.02, ease: 'power3.out' },
-          1.66
+      // Mobile Scene 3 Reveal: Layered crossfade and subtle zoom
+      if (video3 && scene3) {
+        gsap.fromTo(
+          video3,
+          { scale: 1.08, opacity: 0.6 },
+          {
+            scale: 1.0,
+            opacity: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: scene3,
+              start: 'top 85%',
+              end: 'center center',
+              scrub: 0.8,
+            },
+          }
         )
+
+        const s3Words = content3?.querySelectorAll('.scene-heading .word-inner')
+        const s3Sub = content3?.querySelector('.scene-subtitle')
+        const s3Pill = content3?.querySelector('.scene-pill')
+        const s3Cta = content3?.querySelector('.scene-cta')
+
+        if (s3Words && s3Words.length > 0) {
+          const tl3 = gsap.timeline({
+            scrollTrigger: {
+              trigger: scene3,
+              start: 'top 60%',
+              toggleActions: 'play none none reverse',
+            },
+          })
+          if (s3Pill) tl3.fromTo(s3Pill, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.45 })
+          tl3.fromTo(
+            s3Words,
+            { opacity: 0, y: '100%', letterSpacing: '0.04em' },
+            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.75, stagger: 0.04, ease: 'power3.out' },
+            '-=0.25'
+          )
+          if (s3Sub) tl3.fromTo(s3Sub, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.35')
+          if (s3Cta) tl3.fromTo(s3Cta, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.25')
+        }
+
+        ScrollTrigger.create({
+          trigger: scene3,
+          start: 'top 60%',
+          end: 'bottom 40%',
+          onEnter: () => {
+            setActiveScene(2)
+            playVideo(2)
+            pauseVideo(0)
+            pauseVideo(1)
+            pauseVideo(3)
+          },
+          onEnterBack: () => {
+            setActiveScene(2)
+            playVideo(2)
+            pauseVideo(0)
+            pauseVideo(1)
+            pauseVideo(3)
+          },
+        })
       }
-      if (sub) {
-        tl.fromTo(sub, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }, 1.74)
-      }
-      if (cta) {
-        tl.fromTo(cta, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 1.80)
-      }
-    }
 
-    // =========================================================================
-    // TRANSITION 3: Fourth Video — Immersive Scene Change (t: 2 to 3)
-    // =========================================================================
-    // Scene 3 text fades out upward
-    if (content3) {
-      tl.to(content3, { y: -25, opacity: 0, duration: 0.22, ease: 'power2.in' }, 2.12)
-    }
-
-    // Scene 4 slow zoom with layered fade gradually filling the viewport
-    if (scene4) {
-      tl.fromTo(
-        scene4,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.58, ease: 'power2.inOut' },
-        2.22
-      )
-    }
-
-    // Scene 4 video slow zoom (1.14 -> 1.0)
-    if (video4) {
-      tl.fromTo(
-        video4,
-        { scale: 1.14 },
-        { scale: 1.0, duration: 0.65, ease: 'power2.out' },
-        2.22
-      )
-    }
-
-    // Scene 3 fades away completely underneath
-    if (scene3) {
-      tl.to(scene3, { opacity: 0, duration: 0.45, ease: 'power2.inOut' }, 2.32)
-    }
-
-    // ONLY AFTER Scene 4 is prominently visible, reveal its heading & content
-    if (content4) {
-      const pill = content4.querySelector('.scene-pill')
-      const words = content4.querySelectorAll('.scene-heading .word-inner')
-      const sub = content4.querySelector('.scene-subtitle')
-      const cta = content4.querySelector('.scene-cta')
-
-      if (pill) {
-        tl.fromTo(pill, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.14, ease: 'power2.out' }, 2.68)
-      }
-      if (words.length > 0) {
-        tl.fromTo(
-          words,
-          { opacity: 0, y: '105%', letterSpacing: '0.05em' },
-          { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.24, stagger: 0.02, ease: 'power3.out' },
-          2.72
+      // Mobile Scene 4 Reveal: Slow cinematic zoom & elegant fade
+      if (video4 && scene4) {
+        gsap.fromTo(
+          video4,
+          { scale: 1.12, opacity: 0.5 },
+          {
+            scale: 1.0,
+            opacity: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: scene4,
+              start: 'top 85%',
+              end: 'center center',
+              scrub: 0.8,
+            },
+          }
         )
+
+        const s4Words = content4?.querySelectorAll('.scene-heading .word-inner')
+        const s4Sub = content4?.querySelector('.scene-subtitle')
+        const s4Pill = content4?.querySelector('.scene-pill')
+        const s4Cta = content4?.querySelector('.scene-cta')
+
+        if (s4Words && s4Words.length > 0) {
+          const tl4 = gsap.timeline({
+            scrollTrigger: {
+              trigger: scene4,
+              start: 'top 55%',
+              toggleActions: 'play none none reverse',
+            },
+          })
+          if (s4Pill) tl4.fromTo(s4Pill, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.45 })
+          tl4.fromTo(
+            s4Words,
+            { opacity: 0, y: '100%', letterSpacing: '0.04em' },
+            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.75, stagger: 0.04, ease: 'power3.out' },
+            '-=0.25'
+          )
+          if (s4Sub) tl4.fromTo(s4Sub, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.35')
+          if (s4Cta) tl4.fromTo(s4Cta, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.25')
+        }
+
+        ScrollTrigger.create({
+          trigger: scene4,
+          start: 'top 60%',
+          end: 'bottom 40%',
+          onEnter: () => {
+            setActiveScene(3)
+            playVideo(3)
+            pauseVideo(0)
+            pauseVideo(1)
+            pauseVideo(2)
+          },
+          onEnterBack: () => {
+            setActiveScene(3)
+            playVideo(3)
+            pauseVideo(0)
+            pauseVideo(1)
+            pauseVideo(2)
+          },
+        })
       }
-      if (sub) {
-        tl.fromTo(sub, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }, 2.80)
+
+      // Hide HUD when scrolled past story into Forest Journey on mobile
+      if (containerRef.current) {
+        ScrollTrigger.create({
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          onEnter: () => setIsInStory(true),
+          onEnterBack: () => setIsInStory(true),
+          onLeave: () => {
+            setIsInStory(false)
+            pauseAllVideos()
+          },
+          onLeaveBack: () => {
+            setIsInStory(false)
+            pauseAllVideos()
+          },
+        })
       }
-      if (cta) {
-        tl.fromTo(cta, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.18, ease: 'power2.out' }, 2.86)
-      }
-    }
+    })
 
     return () => {
-      tl.kill()
+      mm.revert()
       ScrollTrigger.refresh()
     }
   }, [])
@@ -516,30 +724,30 @@ export default function CinematicStory({
       id="cinematic-story"
       className="relative w-full bg-[#060b08]"
     >
-      {/* Pinned Stage Viewport */}
+      {/* Pinned Stage Viewport on Desktop; Natural Sequential Scroll on Mobile */}
       <div
         ref={stageRef}
-        className="relative w-full h-[100svh] min-h-[640px] overflow-hidden bg-[#060b08]"
+        className="relative w-full h-auto lg:h-[100svh] lg:overflow-hidden bg-[#060b08]"
       >
         {/* Floating Global Cinematic HUD / Progress Bar */}
         <div
-          className={`fixed left-8 md:left-12 bottom-12 z-50 transition-opacity duration-500 pointer-events-none ${
+          className={`fixed left-4 bottom-5 sm:left-8 sm:bottom-10 md:left-12 md:bottom-12 z-50 transition-opacity duration-500 pointer-events-none ${
             !isInStory ? 'opacity-0' : 'opacity-100'
           }`}
         >
-          <div className="flex items-center gap-4 text-xs font-mono tracking-widest text-[#c5a059]">
+          <div className="flex items-center gap-2.5 sm:gap-4 text-[10px] sm:text-xs font-mono tracking-widest text-[#c5a059]">
             <span className="font-semibold">{scenes[activeScene]?.indexLabel}</span>
-            <span className="w-8 h-[1px] bg-[#c5a059]/40" />
-            <span className="text-white/60 tracking-[0.25em] text-[10px] uppercase">
+            <span className="w-5 sm:w-8 h-[1px] bg-[#c5a059]/40" />
+            <span className="text-white/60 tracking-[0.2em] sm:tracking-[0.25em] text-[9px] sm:text-[10px] uppercase">
               {scenes[activeScene]?.label}
             </span>
           </div>
-          <p className="text-[10px] text-white/40 font-mono tracking-wider mt-1">
+          <p className="text-[9px] sm:text-[10px] text-white/40 font-mono tracking-wider mt-0.5 sm:mt-1 truncate max-w-[280px] sm:max-w-none">
             {scenes[activeScene]?.coordinates}
           </p>
         </div>
 
-        {/* Floating Right Scene Dots */}
+        {/* Floating Right Scene Dots (Desktop / Tablet only) */}
         <div
           className={`fixed right-6 md:right-10 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-5 transition-opacity duration-500 ${
             !isInStory ? 'opacity-0 pointer-events-none' : 'opacity-100'
@@ -572,7 +780,9 @@ export default function CinematicStory({
           ))}
         </div>
 
-        {/* 4 Layered Cinematic Video Scenes */}
+        {/* 4 Cinematic Scenes:
+            On Mobile: 4 consecutive full-screen (100svh) sections that appear ONE AFTER ANOTHER.
+            On Desktop: 4 layered pinned scenes with expanding lens, crossfade, and slow-zoom. */}
         {scenes.map((scene, idx) => (
           <section
             key={scene.id}
@@ -580,8 +790,8 @@ export default function CinematicStory({
             ref={(el) => {
               sceneRefs.current[idx] = el
             }}
-            className={`scene-slide absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden ${
-              idx === 0 ? 'z-10' : idx === 1 ? 'z-20' : idx === 2 ? 'z-30' : 'z-40'
+            className={`scene-slide relative lg:absolute lg:inset-0 w-full min-h-[100vh] h-[100svh] flex items-center justify-center overflow-hidden ${
+              idx === 0 ? 'lg:z-10' : idx === 1 ? 'lg:z-20' : idx === 2 ? 'lg:z-30' : 'lg:z-40'
             }`}
           >
             {/* Full-bleed Video Background */}
@@ -598,12 +808,12 @@ export default function CinematicStory({
                 className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
               />
 
-              {/* Cinematic Gradient Overlays for Razor-Sharp Typography & Mood */}
-              <div className="absolute inset-0 bg-radial-vignette opacity-75 pointer-events-none" />
-              <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#060b08]/90 via-[#060b08]/40 to-transparent pointer-events-none" />
-              <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#060b08] via-[#060b08]/50 to-transparent pointer-events-none" />
+              {/* Cinematic Gradient Overlays for High Legibility on Mobile & Desktop */}
+              <div className="absolute inset-0 bg-radial-vignette opacity-75 sm:opacity-75 pointer-events-none" />
+              <div className="absolute inset-x-0 top-0 h-32 sm:h-40 bg-gradient-to-b from-[#060b08]/90 via-[#060b08]/50 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-40 sm:h-48 bg-gradient-to-t from-[#060b08] via-[#060b08]/60 to-transparent pointer-events-none" />
               <div className="absolute inset-0 bg-[#060b08]/30 mix-blend-multiply pointer-events-none" />
-              <div className="absolute inset-0 film-grain pointer-events-none opacity-40" />
+              <div className="absolute inset-0 film-grain pointer-events-none opacity-30 sm:opacity-40" />
             </div>
 
             {/* Minimalist Scene Content Overlay */}
@@ -611,12 +821,12 @@ export default function CinematicStory({
               ref={(el) => {
                 contentRefs.current[idx] = el
               }}
-              className="scene-content relative z-20 max-w-5xl mx-auto px-6 md:px-12 text-center flex flex-col items-center justify-center"
+              className="scene-content relative z-20 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center justify-center pt-12 sm:pt-0"
             >
               {/* Section Category Pill */}
-              <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/50 backdrop-blur-md mb-6">
-                <Compass className="w-3.5 h-3.5 text-[#c5a059]" />
-                <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a059] font-medium">
+              <div className="scene-pill inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-6">
+                <Compass className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#c5a059]" />
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
                   {scene.label}
                 </span>
               </div>
@@ -624,21 +834,21 @@ export default function CinematicStory({
               {/* Majestic Headline with Word Reveal */}
               <WordReveal
                 as="h1"
-                className="scene-heading font-serif-luxury text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-[1.05] drop-shadow-2xl max-w-4xl"
+                className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-[1.12] drop-shadow-2xl max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-4xl"
                 text={scene.title}
               />
 
               {/* Subtle, restrained supporting sentence */}
-              <p className="scene-subtitle mt-5 sm:mt-6 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/85 font-light tracking-[0.04em] max-w-xl mx-auto leading-relaxed drop-shadow-md">
+              <p className="scene-subtitle mt-3 sm:mt-5 font-sans-ui text-xs sm:text-sm md:text-base lg:text-lg text-[#f7f4ed]/85 font-light tracking-[0.03em] max-w-xs sm:max-w-md md:max-w-xl mx-auto leading-relaxed drop-shadow-md">
                 {scene.subtitle}
               </p>
 
-              {/* Optional Call to Action */}
+              {/* Optional Call to Action Button */}
               {scene.actionLabel && (
-                <div className="scene-cta mt-8 sm:mt-10 flex items-center gap-4">
+                <div className="scene-cta mt-6 sm:mt-8 md:mt-10 flex items-center justify-center gap-4">
                   <button
                     onClick={scene.onAction}
-                    className="btn-gold px-8 py-3.5 rounded-full text-xs font-semibold tracking-[0.2em] flex items-center gap-3 group"
+                    className="btn-gold px-7 sm:px-8 py-3 sm:py-3.5 min-h-[44px] rounded-full text-xs font-semibold tracking-[0.2em] flex items-center justify-center gap-2.5 sm:gap-3 group"
                   >
                     <span>{scene.actionLabel}</span>
                     <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -648,16 +858,16 @@ export default function CinematicStory({
 
               {/* Scene 1: Initial Discovery prompt */}
               {idx === 0 && (
-                <div className="scene-prompt mt-12 flex flex-col items-center">
+                <div className="scene-prompt mt-8 sm:mt-12 flex flex-col items-center">
                   <button
                     onClick={() => scrollToScene(1)}
-                    className="group flex flex-col items-center gap-2 text-white/60 hover:text-[#c5a059] transition-colors focus:outline-none"
+                    className="group flex flex-col items-center gap-2 text-white/60 hover:text-[#c5a059] transition-colors focus:outline-none min-h-[44px]"
                     aria-label="Scroll to explore"
                   >
-                    <span className="animated-underline text-[10px] uppercase tracking-[0.3em] font-medium">
+                    <span className="animated-underline text-[9px] sm:text-[10px] uppercase tracking-[0.3em] font-medium">
                       Scroll To Explore
                     </span>
-                    <div className="w-7 h-11 rounded-full border border-white/20 group-hover:border-[#c5a059] flex items-start justify-center p-1.5 transition-colors">
+                    <div className="w-6 sm:w-7 h-10 sm:h-11 rounded-full border border-white/20 group-hover:border-[#c5a059] flex items-start justify-center p-1.5 transition-colors">
                       <span className="w-1 h-2 rounded-full bg-[#c5a059] animate-bounce" />
                     </div>
                   </button>

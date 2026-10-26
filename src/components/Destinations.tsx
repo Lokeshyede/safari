@@ -59,15 +59,15 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
         </div>
 
         {/* Minimalist Destinations Grid - Responsive 3-Card Layout */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {DESTINATIONS.map((dest) => (
             <div
               key={dest.id}
-              className="destination-card group relative rounded-2xl border border-white/10 bg-[#0c1811]/60 backdrop-blur-md p-8 md:p-9 flex flex-col justify-between transition-all duration-500 hover:border-[#c5a059]/40 hover:bg-[#0c1811]/90 shadow-xl"
+              className="destination-card group relative rounded-2xl border border-white/10 bg-[#0c1811]/60 backdrop-blur-md p-6 sm:p-8 md:p-9 flex flex-col justify-between transition-all duration-500 hover:border-[#c5a059]/40 hover:bg-[#0c1811]/90 shadow-xl"
             >
               <div>
                 {/* Meta Coordinates & Index */}
-                <div className="destination-card-meta flex items-center justify-between text-xs font-mono text-[#c5a059] mb-5">
+                <div className="destination-card-meta flex flex-wrap items-center justify-between gap-y-1 text-xs font-mono text-[#c5a059] mb-4 sm:mb-5">
                   <span>{dest.number} // {dest.state}, {dest.country}</span>
                   <span className="text-white/40">{dest.coordinates}</span>
                 </div>
@@ -85,7 +85,7 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
                 </p>
 
                 {/* Key Wildlife Tags */}
-                <div className="mt-6 flex flex-wrap gap-2">
+                <div className="mt-5 sm:mt-6 flex flex-wrap gap-2">
                   {dest.wildlifeTags.map((w) => (
                     <span
                       key={w}
@@ -98,7 +98,7 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
               </div>
 
               {/* Bottom Details & Action */}
-              <div className="destination-card-footer mt-8 pt-6 border-t border-white/10 flex items-center justify-between gap-3">
+              <div className="destination-card-footer mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-white/10 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-xs text-white/50 font-light truncate">
                   <Calendar className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
                   <span className="truncate">{dest.seasonInfo.split('|')[0].trim()}</span>
@@ -106,7 +106,7 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
 
                 <button
                   onClick={() => setSelectedDest(dest)}
-                  className="animated-underline text-xs uppercase tracking-widest text-[#c5a059] hover:text-[#dfb76c] flex items-center gap-1 font-medium shrink-0"
+                  className="animated-underline text-xs uppercase tracking-widest text-[#c5a059] hover:text-[#dfb76c] flex items-center gap-1 font-medium shrink-0 min-h-[44px]"
                 >
                   <span>EXPLORE DESTINATION</span>
                   <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -123,7 +123,7 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
           <div className="relative w-full max-w-2xl rounded-2xl border border-[#c5a059]/30 bg-[#0a120c] p-6 sm:p-10 text-white shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedDest(null)}
-              className="absolute top-6 right-6 p-2 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors"
               aria-label="Close details"
             >
               <X className="w-5 h-5" />

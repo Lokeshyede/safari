@@ -242,7 +242,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
                     placeholder="e.g. Lord Julian Sterling"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
+                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
                       errors.fullName ? 'border-red-500/80' : 'border-white/15'
                     }`}
                   />
@@ -267,7 +267,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
                     placeholder="julian@sterlingadvisors.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
+                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
                       errors.email ? 'border-red-500/80' : 'border-white/15'
                     }`}
                   />
@@ -292,7 +292,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
                     placeholder="+44 20 7946 0912 or +1 (555)..."
                     value={formData.phoneNumber}
                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
+                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
                       errors.phoneNumber ? 'border-red-500/80' : 'border-white/15'
                     }`}
                   />
@@ -317,7 +317,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
                     placeholder="e.g. October 2026 or 2027 Migration"
                     value={formData.travelDate}
                     onChange={(e) => setFormData({ ...formData, travelDate: e.target.value })}
-                    className={`w-full pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
+                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
                       errors.travelDate ? 'border-red-500/80' : 'border-white/15'
                     }`}
                   />
@@ -338,7 +338,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
                 <select
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                  className="w-full px-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
+                  className="w-full min-h-[48px] px-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
                 >
                   {destinationsList.map((d) => (
                     <option key={d} value={d} className="bg-[#0a120c] text-white">
@@ -358,7 +358,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
                   <select
                     value={formData.guests}
                     onChange={(e) => setFormData({ ...formData, guests: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
+                    className="w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
                   >
                     {guestOptions.map((g) => (
                       <option key={g} value={g} className="bg-[#0a120c] text-white">
@@ -377,7 +377,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
                 <select
                   value={formData.safariStyle}
                   onChange={(e) => setFormData({ ...formData, safariStyle: e.target.value })}
-                  className="w-full px-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
+                  className="w-full min-h-[48px] px-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
                 >
                   <option value="Private 4x4 Guided Expedition">Private 4x4 Guided Expedition</option>
                   <option value="Wildlife Photography & Big Cat Focus">Wildlife Photography & Big Cat Focus</option>
@@ -396,7 +396,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
                   placeholder="e.g. Specific interest in Bengal tiger photography, naturalist preference, dietary requirements, or multi-park transfers between Kanha, Pench and Tadoba..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full p-4 rounded-xl border border-white/15 bg-black/40 text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors"
+                  className="w-full p-4 rounded-xl border border-white/15 bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors"
                 />
               </div>
             </div>
@@ -411,7 +411,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto btn-gold px-10 py-4 rounded-full text-xs font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-3 disabled:opacity-60"
+                className="w-full sm:w-auto btn-gold px-10 py-4 min-h-[48px] rounded-full text-xs font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-3 disabled:opacity-60"
               >
                 {isSubmitting ? (
                   <>

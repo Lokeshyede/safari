@@ -279,7 +279,70 @@ export function setupDestinationTitlesAnimation(
   const cards = cardsContainerEl.querySelectorAll<HTMLElement>('.destination-card')
   if (cards.length === 0) return null
 
-  // Collect each card's components
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+
+  if (isMobile) {
+    const triggers: ScrollTrigger[] = []
+    cards.forEach((card) => {
+      const meta = card.querySelector<HTMLElement>('.destination-card-meta')
+      const titleWords = card.querySelectorAll<HTMLElement>('.destination-card-title .word-inner')
+      const desc = card.querySelector<HTMLElement>('.destination-card-desc')
+      const tags = card.querySelectorAll<HTMLElement>('.destination-card-tag')
+      const footer = card.querySelector<HTMLElement>('.destination-card-footer')
+
+      if (meta) gsap.set(meta, { opacity: 0, y: -8 })
+      if (titleWords.length > 0) {
+        gsap.set(titleWords, {
+          opacity: 0,
+          y: '105%',
+          letterSpacing: '0.04em',
+        })
+      }
+      if (desc) gsap.set(desc, { opacity: 0, y: 12 })
+      if (tags.length > 0) gsap.set(tags, { opacity: 0, y: 8 })
+      if (footer) gsap.set(footer, { opacity: 0, y: 10 })
+
+      const cardTl = gsap.timeline({
+        paused: true,
+        defaults: { ease: 'power3.out' },
+      })
+
+      if (meta) cardTl.to(meta, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 0)
+      if (titleWords.length > 0) {
+        cardTl.to(
+          titleWords,
+          {
+            opacity: 1,
+            y: '0%',
+            letterSpacing: '-0.01em',
+            duration: 0.7,
+            stagger: 0.04,
+            ease: 'power3.out',
+          },
+          0.08
+        )
+      }
+      if (desc) cardTl.to(desc, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, 0.2)
+      if (tags.length > 0) {
+        cardTl.to(tags, { opacity: 1, y: 0, duration: 0.45, stagger: 0.03, ease: 'power2.out' }, 0.28)
+      }
+      if (footer) cardTl.to(footer, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 0.35)
+
+      const tr = ScrollTrigger.create({
+        trigger: card,
+        start: 'top 88%',
+        onEnter: () => cardTl.play(),
+        onLeaveBack: () => cardTl.reverse(),
+      })
+      triggers.push(tr)
+    })
+
+    return {
+      kill: () => triggers.forEach((t) => t.kill()),
+    }
+  }
+
+  // Collect each card's components for desktop staggered reveal
   cards.forEach((card) => {
     const meta = card.querySelector<HTMLElement>('.destination-card-meta')
     const titleWords = card.querySelectorAll<HTMLElement>('.destination-card-title .word-inner')
@@ -386,6 +449,65 @@ export function setupExperiencesCardsAnimation(
 
   const cards = cardsContainerEl.querySelectorAll<HTMLElement>('.experience-card')
   if (cards.length === 0) return null
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+
+  if (isMobile) {
+    const triggers: ScrollTrigger[] = []
+    cards.forEach((card) => {
+      const titleWords = card.querySelectorAll<HTMLElement>('.experience-card-title .word-inner')
+      const subtitle = card.querySelector<HTMLElement>('.experience-card-subtitle')
+      const desc = card.querySelector<HTMLElement>('.experience-card-desc')
+
+      if (titleWords.length > 0) {
+        gsap.set(titleWords, {
+          opacity: 0,
+          y: '105%',
+          letterSpacing: '0.03em',
+        })
+      }
+      if (subtitle) gsap.set(subtitle, { opacity: 0, y: 8 })
+      if (desc) gsap.set(desc, { opacity: 0, y: 12 })
+
+      const cardTl = gsap.timeline({
+        paused: true,
+        defaults: { ease: 'power3.out' },
+      })
+
+      if (titleWords.length > 0) {
+        cardTl.to(
+          titleWords,
+          {
+            opacity: 1,
+            y: '0%',
+            letterSpacing: 'inherit',
+            duration: 0.7,
+            stagger: 0.04,
+            ease: 'power3.out',
+          },
+          0
+        )
+      }
+      if (subtitle) {
+        cardTl.to(subtitle, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.15)
+      }
+      if (desc) {
+        cardTl.to(desc, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, 0.25)
+      }
+
+      const tr = ScrollTrigger.create({
+        trigger: card,
+        start: 'top 88%',
+        onEnter: () => cardTl.play(),
+        onLeaveBack: () => cardTl.reverse(),
+      })
+      triggers.push(tr)
+    })
+
+    return {
+      kill: () => triggers.forEach((t) => t.kill()),
+    }
+  }
 
   cards.forEach((card) => {
     const titleWords = card.querySelectorAll<HTMLElement>('.experience-card-title .word-inner')
