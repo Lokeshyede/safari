@@ -232,17 +232,20 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               {/* Full Name */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
+                <label htmlFor="enquiry-fullname" className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
                   Full Name <span className="text-[#c5a059]">*</span>
                 </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
+                    id="enquiry-fullname"
                     type="text"
                     placeholder="e.g. Lord Julian Sterling"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
+                    aria-required="true"
+                    aria-invalid={!!errors.fullName}
+                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] focus-visible:ring-1 focus-visible:ring-[#c5a059] transition-colors ${
                       errors.fullName ? 'border-red-500/80' : 'border-white/15'
                     }`}
                   />
@@ -257,17 +260,20 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
 
               {/* Email Address */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
+                <label htmlFor="enquiry-email" className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
                   Email Address <span className="text-[#c5a059]">*</span>
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
+                    id="enquiry-email"
                     type="email"
                     placeholder="julian@sterlingadvisors.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
+                    aria-required="true"
+                    aria-invalid={!!errors.email}
+                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] focus-visible:ring-1 focus-visible:ring-[#c5a059] transition-colors ${
                       errors.email ? 'border-red-500/80' : 'border-white/15'
                     }`}
                   />
@@ -282,17 +288,20 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
 
               {/* Phone / WhatsApp */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
+                <label htmlFor="enquiry-phone" className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
                   Phone / WhatsApp <span className="text-[#c5a059]">*</span>
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
+                    id="enquiry-phone"
                     type="tel"
                     placeholder="+44 20 7946 0912 or +1 (555)..."
                     value={formData.phoneNumber}
                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
+                    aria-required="true"
+                    aria-invalid={!!errors.phoneNumber}
+                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] focus-visible:ring-1 focus-visible:ring-[#c5a059] transition-colors ${
                       errors.phoneNumber ? 'border-red-500/80' : 'border-white/15'
                     }`}
                   />
@@ -307,17 +316,20 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
 
               {/* Target Travel Window / Date */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
+                <label htmlFor="enquiry-traveldate" className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
                   Travel Window / Date <span className="text-[#c5a059]">*</span>
                 </label>
                 <div className="relative">
                   <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
+                    id="enquiry-traveldate"
                     type="text"
                     placeholder="e.g. October 2026 or 2027 Migration"
                     value={formData.travelDate}
                     onChange={(e) => setFormData({ ...formData, travelDate: e.target.value })}
-                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors ${
+                    aria-required="true"
+                    aria-invalid={!!errors.travelDate}
+                    className={`w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] focus-visible:ring-1 focus-visible:ring-[#c5a059] transition-colors ${
                       errors.travelDate ? 'border-red-500/80' : 'border-white/15'
                     }`}
                   />
@@ -332,13 +344,14 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
 
               {/* Preferred Destination / Sanctuary */}
               <div className="md:col-span-2">
-                <label className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
+                <label htmlFor="enquiry-sanctuary" className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
                   Preferred Wilderness Sanctuary <span className="text-[#c5a059]">*</span>
                 </label>
                 <select
+                  id="enquiry-sanctuary"
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                  className="w-full min-h-[48px] px-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
+                  className="w-full min-h-[48px] px-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] focus-visible:ring-1 focus-visible:ring-[#c5a059] transition-colors"
                 >
                   {destinationsList.map((d) => (
                     <option key={d} value={d} className="bg-[#0a120c] text-white">
@@ -350,15 +363,16 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
 
               {/* Number of Guests */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
+                <label htmlFor="enquiry-guests" className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
                   Number of Guests
                 </label>
                 <div className="relative">
                   <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <select
+                    id="enquiry-guests"
                     value={formData.guests}
                     onChange={(e) => setFormData({ ...formData, guests: e.target.value })}
-                    className="w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
+                    className="w-full min-h-[48px] pl-11 pr-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] focus-visible:ring-1 focus-visible:ring-[#c5a059] transition-colors"
                   >
                     {guestOptions.map((g) => (
                       <option key={g} value={g} className="bg-[#0a120c] text-white">
@@ -371,13 +385,14 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
 
               {/* Safari Style */}
               <div>
-                <label className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
+                <label htmlFor="enquiry-style" className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
                   Expedition Style
                 </label>
                 <select
+                  id="enquiry-style"
                   value={formData.safariStyle}
                   onChange={(e) => setFormData({ ...formData, safariStyle: e.target.value })}
-                  className="w-full min-h-[48px] px-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] transition-colors"
+                  className="w-full min-h-[48px] px-4 py-3.5 rounded-xl border border-white/15 bg-[#0a120c] text-base sm:text-sm text-white focus:outline-none focus:border-[#c5a059] focus-visible:ring-1 focus-visible:ring-[#c5a059] transition-colors"
                 >
                   <option value="Private 4x4 Guided Expedition">Private 4x4 Guided Expedition</option>
                   <option value="Wildlife Photography & Big Cat Focus">Wildlife Photography & Big Cat Focus</option>
@@ -388,15 +403,16 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
 
               {/* Bespoke Notes */}
               <div className="md:col-span-2">
-                <label className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
+                <label htmlFor="enquiry-notes" className="block text-xs uppercase tracking-widest text-[#f7f4ed]/80 mb-2 font-medium">
                   Wildlife Priorities & Special Requests (Optional)
                 </label>
                 <textarea
+                  id="enquiry-notes"
                   rows={3}
                   placeholder="e.g. Specific interest in Bengal tiger photography, naturalist preference, dietary requirements, or multi-park transfers between Kanha, Pench and Tadoba..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full p-4 rounded-xl border border-white/15 bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] transition-colors"
+                  className="w-full p-4 rounded-xl border border-white/15 bg-black/40 text-base sm:text-sm text-white placeholder-white/25 focus:outline-none focus:border-[#c5a059] focus-visible:ring-1 focus-visible:ring-[#c5a059] transition-colors"
                 />
               </div>
             </div>
@@ -411,7 +427,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto btn-gold px-10 py-4 min-h-[48px] rounded-full text-xs font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-3 disabled:opacity-60"
+                className="w-full sm:w-auto btn-gold px-10 py-4 min-h-[48px] rounded-full text-xs font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-3 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c5a059]"
               >
                 {isSubmitting ? (
                   <>

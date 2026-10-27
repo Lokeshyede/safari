@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Compass, ChevronRight } from 'lucide-react'
@@ -25,6 +25,51 @@ interface SceneData {
   onAction?: () => void
 }
 
+const BASE_SCENES = [
+  {
+    id: 'scene-1',
+    title: 'Into The Wild',
+    subtitle: 'Discover a different kind of escape.',
+    label: 'PROLOGUE',
+    indexLabel: '01 / 04',
+    coordinates: '22°20\'00"N 80°37\'00"E • KANHA TIGER RESERVE',
+    videoSrc: '/videos/jungle-1.mp4',
+    poster: '/images/forest-canopy.jpg',
+  },
+  {
+    id: 'scene-2',
+    title: 'Nature, Untamed',
+    subtitle: 'Where ancient rhythms dictate every breath of the earth.',
+    label: 'THE WILDERNESS',
+    indexLabel: '02 / 04',
+    coordinates: '21°42\'00"N 79°18\'00"E • PENCH TIGER RESERVE',
+    videoSrc: '/videos/jungle-2.mp4',
+    poster: '/images/forest-river.jpg',
+  },
+  {
+    id: 'scene-3',
+    title: 'Every Journey, A Story',
+    subtitle: 'Guided across wild horizons where few have walked.',
+    label: 'THE EXPEDITION',
+    indexLabel: '03 / 04',
+    coordinates: '20°14\'00"N 79°24\'00"E • TADOBA-ANDHARI TIGER RESERVE',
+    videoSrc: '/videos/jungle-3.mp4',
+    poster: '/images/wildlife-tiger.jpg',
+    actionLabel: 'Explore Safaris',
+  },
+  {
+    id: 'scene-4',
+    title: 'Your Wild Escape Awaits',
+    subtitle: 'Bespoke lodges, private air safaris, and untamed stillness.',
+    label: 'THE SANCTUARY',
+    indexLabel: '04 / 04',
+    coordinates: 'CENTRAL HIGHLANDS • SATPURA-MAIKAL LANDSCAPE',
+    videoSrc: '/videos/jungle-4.mp4',
+    poster: '/images/forest-lodge.jpg',
+    actionLabel: 'Plan Your Safari',
+  },
+] as const
+
 export default function CinematicStory({
   onExploreSafaris,
   onPlanSafari,
@@ -41,85 +86,45 @@ export default function CinematicStory({
   const [isInStory, setIsInStory] = useState(true)
 
   const scenes: SceneData[] = [
-    {
-      id: 'scene-1',
-      title: 'Into The Wild',
-      subtitle: 'Discover a different kind of escape.',
-      label: 'PROLOGUE',
-      indexLabel: '01 / 04',
-      coordinates: '22°20\'00"N 80°37\'00"E • KANHA TIGER RESERVE',
-      videoSrc: '/videos/jungle-1.mp4',
-      poster: '/images/forest-canopy.jpg',
-    },
-    {
-      id: 'scene-2',
-      title: 'Nature, Untamed',
-      subtitle: 'Where ancient rhythms dictate every breath of the earth.',
-      label: 'THE WILDERNESS',
-      indexLabel: '02 / 04',
-      coordinates: '21°42\'00"N 79°18\'00"E • PENCH TIGER RESERVE',
-      videoSrc: '/videos/jungle-2.mp4',
-      poster: '/images/forest-river.jpg',
-    },
-    {
-      id: 'scene-3',
-      title: 'Every Journey, A Story',
-      subtitle: 'Guided across wild horizons where few have walked.',
-      label: 'THE EXPEDITION',
-      indexLabel: '03 / 04',
-      coordinates: '20°14\'00"N 79°24\'00"E • TADOBA-ANDHARI TIGER RESERVE',
-      videoSrc: '/videos/jungle-3.mp4',
-      poster: '/images/wildlife-tiger.jpg',
-      actionLabel: 'Explore Safaris',
-      onAction: onExploreSafaris,
-    },
-    {
-      id: 'scene-4',
-      title: 'Your Wild Escape Awaits',
-      subtitle: 'Bespoke lodges, private air safaris, and untamed stillness.',
-      label: 'THE SANCTUARY',
-      indexLabel: '04 / 04',
-      coordinates: 'CENTRAL HIGHLANDS • SATPURA-MAIKAL LANDSCAPE',
-      videoSrc: '/videos/jungle-4.mp4',
-      poster: '/images/forest-lodge.jpg',
-      actionLabel: 'Plan Your Safari',
-      onAction: onPlanSafari,
-    },
+    { ...BASE_SCENES[0] },
+    { ...BASE_SCENES[1] },
+    { ...BASE_SCENES[2], onAction: onExploreSafaris },
+    { ...BASE_SCENES[3], onAction: onPlanSafari },
   ]
 
-  // Video play/pause helpers
-  const playVideo = (idx: number) => {
+  // Video play/pause helpers memoized for stable references
+  const playVideo = useCallback((idx: number) => {
     const v = videoRefs.current[idx]
     if (v && v.paused) {
       v.play().catch(() => {})
     }
-  }
+  }, [])
 
-  const pauseVideo = (idx: number) => {
+  const pauseVideo = useCallback((idx: number) => {
     const v = videoRefs.current[idx]
     if (v && !v.paused) {
       v.pause()
     }
-  }
+  }, [])
 
-  const pauseAllVideos = () => {
-    scenes.forEach((_, idx) => pauseVideo(idx))
-  }
+  const pauseAllVideos = useCallback(() => {
+    BASE_SCENES.forEach((_, idx) => pauseVideo(idx))
+  }, [pauseVideo])
 
   // Smooth programmatic scroll to scene target on both mobile and desktop
-  const scrollToScene = (idx: number) => {
+  const scrollToScene = useCallback((idx: number) => {
     if (isReducedMotion() || window.innerWidth < 1024 || !masterScrollTriggerRef.current) {
-      const el = document.getElementById(scenes[idx]?.id)
+      const el = document.getElementById(BASE_SCENES[idx]?.id)
       el?.scrollIntoView({ behavior: 'smooth' })
       return
     }
 
     const st = masterScrollTriggerRef.current
-    const targets = [0.0, 0.333, 0.666, 1.0]
+    const targets = [0.0, 0.38, 0.70, 1.0]
     const targetProgress = targets[idx] ?? 0
     const targetY = st.start + (st.end - st.start) * targetProgress
     window.scrollTo({ top: targetY, behavior: 'smooth' })
-  }
+  }, [])
 
   // Master GSAP animations with matchMedia (Desktop Pinned Transitions vs Mobile Sequential Full-Screen Scenes)
   useEffect(() => {
@@ -131,7 +136,7 @@ export default function CinematicStory({
     if (motionPref) {
       // Reduced motion: basic visibility without movement
       const triggers: ScrollTrigger[] = []
-      scenes.forEach((_, index) => {
+      BASE_SCENES.forEach((_, index) => {
         const el = document.getElementById(`scene-${index + 1}`)
         if (!el) return
         const t = ScrollTrigger.create({
@@ -141,14 +146,14 @@ export default function CinematicStory({
           onEnter: () => {
             setActiveScene(index)
             playVideo(index)
-            scenes.forEach((_, other) => {
+            BASE_SCENES.forEach((_, other) => {
               if (other !== index) pauseVideo(other)
             })
           },
           onEnterBack: () => {
             setActiveScene(index)
             playVideo(index)
-            scenes.forEach((_, other) => {
+            BASE_SCENES.forEach((_, other) => {
               if (other !== index) pauseVideo(other)
             })
           },
@@ -480,7 +485,7 @@ export default function CinematicStory({
       })
 
       // Setup clean per-scene trigger for video playback & active HUD tracking
-      scenes.forEach((_, idx) => {
+      BASE_SCENES.forEach((_, idx) => {
         const scEl = sceneRefs.current[idx]
         if (!scEl) return
 
@@ -491,14 +496,14 @@ export default function CinematicStory({
           onEnter: () => {
             setActiveScene(idx)
             playVideo(idx)
-            scenes.forEach((_, other) => {
+            BASE_SCENES.forEach((_, other) => {
               if (other !== idx) pauseVideo(other)
             })
           },
           onEnterBack: () => {
             setActiveScene(idx)
             playVideo(idx)
-            scenes.forEach((_, other) => {
+            BASE_SCENES.forEach((_, other) => {
               if (other !== idx) pauseVideo(other)
             })
           },
@@ -600,7 +605,7 @@ export default function CinematicStory({
       mm.revert()
       ScrollTrigger.refresh()
     }
-  }, [])
+  }, [playVideo, pauseVideo, pauseAllVideos])
 
   // Listen for navigation events from navbar
   useEffect(() => {
@@ -613,7 +618,21 @@ export default function CinematicStory({
 
     window.addEventListener('safari:scrollToScene', handleNavEvent)
     return () => window.removeEventListener('safari:scrollToScene', handleNavEvent)
-  }, [])
+  }, [scrollToScene])
+
+  // Pause videos when browser tab is hidden and resume active video on tab return
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        pauseAllVideos()
+      } else if (isInStory) {
+        playVideo(activeSceneRef.current)
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [isInStory, pauseAllVideos, playVideo])
 
   return (
     <div
@@ -654,7 +673,7 @@ export default function CinematicStory({
             <button
               key={s.id}
               onClick={() => scrollToScene(idx)}
-              className="group flex items-center justify-end gap-3 text-right focus:outline-none"
+              className="group flex items-center justify-end gap-3 text-right focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c5a059] rounded-full p-1"
               aria-label={`Go to scene ${idx + 1}: ${s.title}`}
             >
               <span
@@ -695,8 +714,15 @@ export default function CinematicStory({
               height: '100svh',
             }}
           >
-            {/* Full-bleed Video Background */}
+            {/* Full-bleed Video Background with Instant Poster Underlay */}
             <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#060b08]">
+              {/* Reliable Instant Poster Image Underlay (Eliminates black screen during buffer or slow network) */}
+              <img
+                src={scene.poster}
+                alt={scene.title}
+                className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+                loading={idx === 0 ? 'eager' : 'lazy'}
+              />
               <video
                 ref={(el) => {
                   videoRefs.current[idx] = el
@@ -706,9 +732,9 @@ export default function CinematicStory({
                 muted
                 playsInline
                 loop
-                preload="metadata"
+                preload={idx === 0 ? 'auto' : 'metadata'}
                 onLoadedMetadata={() => ScrollTrigger.refresh()}
-                className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
+                className="relative z-10 w-full h-full object-cover select-none pointer-events-none will-change-transform"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -717,11 +743,11 @@ export default function CinematicStory({
               />
 
               {/* Cinematic Gradient Overlays for High Legibility on Mobile & Desktop */}
-              <div className="absolute inset-0 bg-radial-vignette opacity-75 sm:opacity-75 pointer-events-none" />
-              <div className="absolute inset-x-0 top-0 h-28 sm:h-40 bg-gradient-to-b from-[#060b08]/90 via-[#060b08]/50 to-transparent pointer-events-none" />
-              <div className="absolute inset-x-0 bottom-0 h-36 sm:h-48 bg-gradient-to-t from-[#060b08] via-[#060b08]/60 to-transparent pointer-events-none" />
-              <div className="absolute inset-0 bg-[#060b08]/30 mix-blend-multiply pointer-events-none" />
-              <div className="absolute inset-0 film-grain pointer-events-none opacity-30 sm:opacity-40" />
+              <div className="absolute inset-0 z-20 bg-radial-vignette opacity-75 sm:opacity-75 pointer-events-none" />
+              <div className="absolute inset-x-0 top-0 z-20 h-28 sm:h-40 bg-gradient-to-b from-[#060b08]/90 via-[#060b08]/50 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 z-20 h-36 sm:h-48 bg-gradient-to-t from-[#060b08] via-[#060b08]/60 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 z-20 bg-[#060b08]/30 mix-blend-multiply pointer-events-none" />
+              <div className="absolute inset-0 z-20 film-grain pointer-events-none opacity-30 sm:opacity-40" />
             </div>
 
             {/* Minimalist Scene Content Overlay */}
@@ -729,7 +755,7 @@ export default function CinematicStory({
               ref={(el) => {
                 contentRefs.current[idx] = el
               }}
-              className="scene-content relative z-20 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center justify-center pt-6 sm:pt-0"
+              className="scene-content relative z-30 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center justify-center pt-6 sm:pt-0"
             >
               {/* Section Category Pill */}
               <div className="scene-pill inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/70 backdrop-blur-md mb-3 sm:mb-6">
@@ -739,9 +765,9 @@ export default function CinematicStory({
                 </span>
               </div>
 
-              {/* Majestic Headline with Word Reveal - Fluid responsive scaling */}
+              {/* Majestic Headline with Word Reveal - Single semantic H1 for Scene 1, H2 for Scenes 2-4 */}
               <WordReveal
-                as="h1"
+                as={idx === 0 ? 'h1' : 'h2'}
                 className="scene-heading font-serif-luxury text-2xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-normal text-[#f7f4ed] tracking-tight sm:tracking-[-0.02em] leading-[1.12] drop-shadow-2xl max-w-[300px] sm:max-w-xl md:max-w-3xl lg:max-w-4xl"
                 text={scene.title}
               />

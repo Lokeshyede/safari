@@ -19,15 +19,23 @@ export default function Navbar({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Lock body scroll when mobile drawer is open to prevent background page scrolling
+  // Lock body scroll and listen for Escape key when mobile drawer is open
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false)
+      }
+    }
+
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden'
+      window.addEventListener('keydown', handleKeyDown)
     } else {
       document.body.style.overflow = ''
     }
     return () => {
       document.body.style.overflow = ''
+      window.removeEventListener('keydown', handleKeyDown)
     }
   }, [mobileMenuOpen])
 
@@ -68,7 +76,7 @@ export default function Navbar({
           {/* Logo / Brandmark */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="group flex items-center gap-2.5 sm:gap-3 text-left focus:outline-none shrink-0 min-h-[44px]"
+            className="group flex items-center gap-2.5 sm:gap-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c5a059] rounded-lg shrink-0 min-h-[44px]"
           >
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-[#c5a059]/40 flex items-center justify-center transition-transform duration-500 group-hover:rotate-45 bg-[#060b08]/50">
               <Compass className="w-4 h-4 text-[#c5a059]" />
@@ -84,40 +92,46 @@ export default function Navbar({
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 xl:gap-8">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             <button
               onClick={() => scrollToSection('scene-1')}
-              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1"
+              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c5a059]"
             >
               <span>Prologue</span>
             </button>
             <button
               onClick={() => scrollToSection('scene-2')}
-              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1"
+              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c5a059]"
             >
               <span>Wilderness</span>
             </button>
             <button
               onClick={() => scrollToSection('scene-3')}
-              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1"
+              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c5a059]"
             >
               <span>Expeditions</span>
             </button>
             <button
+              onClick={() => scrollToSection('scene-4')}
+              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c5a059]"
+            >
+              <span>Sanctuary</span>
+            </button>
+            <button
               onClick={() => scrollToSection('section-forest-canopy')}
-              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1"
+              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c5a059]"
             >
               <span>The Forest</span>
             </button>
             <button
               onClick={() => scrollToSection('destinations')}
-              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1"
+              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c5a059]"
             >
-              <span>Sanctuaries</span>
+              <span>Reserves</span>
             </button>
             <button
               onClick={() => scrollToSection('experiences')}
-              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1"
+              className="animated-underline text-xs uppercase tracking-[0.2em] text-[#f7f4ed]/75 hover:text-[#c5a059] transition-colors duration-200 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c5a059]"
             >
               <span>Experiences</span>
             </button>
@@ -128,7 +142,7 @@ export default function Navbar({
             {/* Plan Your Safari CTA (shown on sm and up, hidden on tiny screens to avoid crowding) */}
             <button
               onClick={onNavigateToEnquiry}
-              className="hidden sm:inline-flex btn-gold text-[10px] sm:text-[11px] px-3.5 sm:px-5 py-2 sm:py-2.5 min-h-[44px] rounded-full items-center justify-center"
+              className="hidden sm:inline-flex btn-gold text-[10px] sm:text-[11px] px-3.5 sm:px-5 py-2 sm:py-2.5 min-h-[44px] rounded-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c5a059]"
             >
               Plan Your Safari
             </button>
@@ -136,7 +150,7 @@ export default function Navbar({
             {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-white/20 text-white hover:text-[#c5a059] hover:border-[#c5a059] transition-colors"
+              className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-white/20 text-white hover:text-[#c5a059] hover:border-[#c5a059] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c5a059]"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

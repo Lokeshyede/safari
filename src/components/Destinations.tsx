@@ -33,13 +33,21 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
   }, [])
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedDest(null)
+      }
+    }
+
     if (selectedDest) {
       document.body.style.overflow = 'hidden'
+      window.addEventListener('keydown', handleKeyDown)
     } else {
       document.body.style.overflow = ''
     }
     return () => {
       document.body.style.overflow = ''
+      window.removeEventListener('keydown', handleKeyDown)
     }
   }, [selectedDest])
 
@@ -117,7 +125,7 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
 
                 <button
                   onClick={() => setSelectedDest(dest)}
-                  className="animated-underline text-[11px] sm:text-xs uppercase tracking-widest text-[#c5a059] hover:text-[#dfb76c] flex items-center gap-1 font-medium shrink-0 min-h-[44px]"
+                  className="animated-underline text-[11px] sm:text-xs uppercase tracking-widest text-[#c5a059] hover:text-[#dfb76c] flex items-center gap-1 font-medium shrink-0 min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#c5a059]"
                 >
                   <span>EXPLORE DESTINATION</span>
                   <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -130,11 +138,16 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
 
       {/* Destination Modal Details */}
       {selectedDest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-xl animate-fade-in">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-dest-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-xl animate-fade-in"
+        >
           <div className="relative w-full max-w-2xl rounded-2xl border border-[#c5a059]/30 bg-[#0a120c] p-5 sm:p-8 md:p-10 text-white shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedDest(null)}
-              className="absolute top-3 right-3 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors"
+              className="absolute top-3 right-3 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c5a059]"
               aria-label="Close details"
             >
               <X className="w-5 h-5" />
@@ -144,7 +157,7 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>OFFICIAL SANCTUARY DOSSIER // {selectedDest.number}</span>
             </div>
-            <h3 className="font-serif-luxury text-3xl sm:text-4xl text-[#f7f4ed]">
+            <h3 id="modal-dest-title" className="font-serif-luxury text-3xl sm:text-4xl text-[#f7f4ed]">
               {selectedDest.title}
             </h3>
             <p className="text-xs text-white/60 font-mono mt-1 flex items-center gap-2">

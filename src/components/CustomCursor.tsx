@@ -4,19 +4,13 @@ export default function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
   const [isHovered, setIsHovered] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-  const [isTouchDevice, setIsTouchDevice] = useState(true) // Default to true until desktop confirmed
+  const [isTouchDevice] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  })
 
   useEffect(() => {
-    // Only enable on true desktop pointer devices with hover capability
-    const hasCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || hasCoarsePointer
-
-    if (isTouch) {
-      setIsTouchDevice(true)
-      return
-    }
-
-    setIsTouchDevice(false)
+    if (isTouchDevice) return
 
     const handleMouseMove = (e: MouseEvent) => {
       setPos({ x: e.clientX, y: e.clientY })
@@ -49,7 +43,7 @@ export default function CustomCursor() {
       document.removeEventListener('mouseleave', handleMouseLeave)
       document.removeEventListener('mouseenter', handleMouseEnter)
     }
-  }, []) // Empty dependency array prevents re-binding
+  }, [isTouchDevice])
 
   if (isTouchDevice || !isVisible) return null
 

@@ -1,5 +1,7 @@
 import { Compass, ArrowUp, Shield, Mail, Phone } from 'lucide-react'
 
+const CURRENT_YEAR = new Date().getFullYear()
+
 export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -132,7 +134,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-6 sm:pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-light text-white/40 text-center sm:text-left">
-          <p>© {new Date().getFullYear()} AURA SAFARIS LTD. All rights reserved.</p>
+          <p>© {CURRENT_YEAR} AURA SAFARIS LTD. All rights reserved.</p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <span className="animated-underline hover:text-white transition-colors cursor-pointer">
