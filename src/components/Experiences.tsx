@@ -98,77 +98,77 @@ export default function Experiences({ onPlanSafari }: ExperiencesProps) {
   }, [])
 
   return (
-    <section id="experiences" className="relative py-28 md:py-36 bg-[#08100b] border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+    <section id="experiences" className="relative py-20 sm:py-28 md:py-36 bg-[#08100b] border-t border-white/5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
         {/* Header */}
-        <div ref={headerRef} className="text-center max-w-3xl mx-auto mb-20">
-          <div className="section-header-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#0c1811] mb-5">
+        <div ref={headerRef} className="text-center max-w-3xl mx-auto mb-12 sm:mb-20">
+          <div className="section-header-pill inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c5a059]/30 bg-[#0c1811] mb-3 sm:mb-5">
             <Compass className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a059] font-medium">
+            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
               Authentic Indian Wildlife Encounters
             </span>
           </div>
           <WordReveal
             as="h2"
-            className="section-header-heading font-serif-luxury text-3xl sm:text-5xl text-[#f7f4ed] tracking-[-0.01em]"
+            className="section-header-heading font-serif-luxury text-2xl sm:text-4xl md:text-5xl text-[#f7f4ed] tracking-[-0.01em]"
             text="Forest & Wildlife Experiences"
           />
-          <p className="section-header-paragraph mt-4 font-sans-ui text-sm sm:text-base text-white/65 font-light leading-relaxed">
+          <p className="section-header-paragraph mt-3 sm:mt-4 font-sans-ui text-xs sm:text-sm md:text-base text-white/65 font-light leading-relaxed">
             Respectful, low-impact safari drives and guided nature walks conducted in strict compliance with National Tiger Conservation Authority (NTCA) rules.
           </p>
         </div>
 
         {/* 4 Cards Grid */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
           {EXPERIENCES.map((exp) => {
             const Icon = exp.icon
             return (
               <div
                 key={exp.id}
-                className="experience-card group relative rounded-2xl border border-white/10 bg-[#0c1811]/70 backdrop-blur-md p-7 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:border-[#c5a059]/40 hover:-translate-y-1.5 hover:shadow-2xl hover:bg-[#0c1811]"
+                className="experience-card group relative rounded-2xl border border-white/10 bg-[#0c1811]/70 backdrop-blur-md p-5 sm:p-7 md:p-8 flex flex-col justify-between transition-all duration-300 hover:border-[#c5a059]/40 hover:-translate-y-1.5 hover:shadow-2xl hover:bg-[#0c1811]"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center justify-between mb-4 sm:mb-5">
                     <span className="text-xs font-mono text-[#c5a059]">{exp.number}</span>
-                    <div className="w-9 h-9 rounded-full bg-[#132a1c] border border-[#c5a059]/30 flex items-center justify-center text-[#c5a059]">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#132a1c] border border-[#c5a059]/30 flex items-center justify-center text-[#c5a059]">
                       <Icon className="w-4 h-4" />
                     </div>
                   </div>
 
                   <WordReveal
                     as="h3"
-                    className="experience-card-title font-serif-luxury text-xl text-[#f7f4ed] group-hover:text-[#c5a059] transition-colors duration-200"
+                    className="experience-card-title font-serif-luxury text-lg sm:text-xl text-[#f7f4ed] group-hover:text-[#c5a059] transition-colors duration-200"
                     text={exp.title}
                   />
-                  <p className="experience-card-subtitle mt-1 text-[11px] text-[#c5a059]/80 font-mono tracking-wider uppercase">
+                  <p className="experience-card-subtitle mt-1 text-[10px] sm:text-[11px] text-[#c5a059]/80 font-mono tracking-wider uppercase">
                     {exp.subtitle}
                   </p>
 
-                  <p className="experience-card-desc mt-4 text-xs sm:text-sm text-white/70 font-light leading-relaxed">
+                  <p className="experience-card-desc mt-3 sm:mt-4 text-xs sm:text-sm text-white/70 font-light leading-relaxed">
                     {exp.description}
                   </p>
 
                   {/* Park Availability */}
-                  <div className="mt-5 space-y-2 pt-4 border-t border-white/10 text-xs">
+                  <div className="mt-4 sm:mt-5 space-y-2 pt-3.5 sm:pt-4 border-t border-white/10 text-xs">
                     <div className="flex items-start gap-2 text-white/60 font-light">
                       <MapPin className="w-3.5 h-3.5 text-[#c5a059] shrink-0 mt-0.5" />
-                      <span>{exp.parks}</span>
+                      <span className="text-[11px] sm:text-xs">{exp.parks}</span>
                     </div>
                     <div className="flex items-center gap-2 text-white/60 font-light">
                       <Clock className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
-                      <span>{exp.timing}</span>
+                      <span className="text-[11px] sm:text-xs">{exp.timing}</span>
                     </div>
                   </div>
 
                   {exp.regulationNote && (
-                    <div className="mt-3 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200/80 leading-relaxed font-light">
+                    <div className="mt-3 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] sm:text-[11px] text-amber-200/80 leading-relaxed font-light">
                       {exp.regulationNote}
                     </div>
                   )}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-white/10">
-                  <span className="text-[11px] text-white/50 block font-light italic">
+                <div className="mt-5 sm:mt-6 pt-3.5 sm:pt-4 border-t border-white/10">
+                  <span className="text-[10px] sm:text-[11px] text-white/50 block font-light italic">
                     ★ {exp.highlight}
                   </span>
                 </div>
@@ -178,7 +178,7 @@ export default function Experiences({ onPlanSafari }: ExperiencesProps) {
         </div>
 
         {/* Official Regulation Notice Banner */}
-        <div className="mt-12 p-6 rounded-2xl border border-white/10 bg-[#0c1811]/60 backdrop-blur-md max-w-4xl mx-auto flex flex-col sm:flex-row items-start gap-4">
+        <div className="mt-8 sm:mt-12 p-4 sm:p-6 rounded-2xl border border-white/10 bg-[#0c1811]/60 backdrop-blur-md max-w-4xl mx-auto flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
           <ShieldAlert className="w-5 h-5 text-[#c5a059] shrink-0 mt-0.5" />
           <div className="text-xs text-white/60 font-light leading-relaxed space-y-1">
             <span className="text-[#f7f4ed] font-medium block">
@@ -191,10 +191,10 @@ export default function Experiences({ onPlanSafari }: ExperiencesProps) {
         </div>
 
         {/* Bottom Banner */}
-        <div className="mt-12 text-center">
+        <div className="mt-8 sm:mt-12 text-center">
           <button
             onClick={onPlanSafari}
-            className="btn-gold px-10 py-4 rounded-full text-xs font-semibold tracking-[0.2em] uppercase"
+            className="btn-gold px-8 py-3.5 sm:px-10 sm:py-4 rounded-full text-xs font-semibold tracking-[0.18em] sm:tracking-[0.2em] uppercase min-h-[44px]"
           >
             Customize Your Encounters
           </button>

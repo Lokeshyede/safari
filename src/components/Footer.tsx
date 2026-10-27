@@ -6,14 +6,14 @@ export default function Footer() {
   }
 
   return (
-    <footer className="relative bg-[#040805] text-white/60 border-t border-white/10 pt-20 pb-12 overflow-hidden">
+    <footer className="relative bg-[#040805] text-white/60 border-t border-white/10 pt-16 sm:pt-20 pb-10 sm:pb-12 overflow-hidden">
       {/* Background subtle watermark */}
-      <div className="absolute right-0 bottom-0 text-[180px] font-serif-luxury font-bold text-white/[0.015] pointer-events-none select-none leading-none">
+      <div className="absolute right-0 bottom-0 text-[72px] sm:text-[130px] md:text-[180px] font-serif-luxury font-bold text-white/[0.015] pointer-events-none select-none leading-none">
         SAFARI
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12 sm:mb-16">
           {/* Brand Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
@@ -40,15 +40,15 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3 text-xs font-light">
               <li className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#c5a059]" />
+                <Phone className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
                 <span className="text-white/80">+91 11 4987 6000 (New Delhi HQ)</span>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#c5a059]" />
-                <span className="text-white/80">+91 712 254 8800 (Nagpur Gateway Hub)</span>
+                <Phone className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
+                <span className="text-white/80">+91 712 254 8800 (Nagpur Gateway)</span>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#c5a059]" />
+                <Mail className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
                 <a
                   href="mailto:concierge@aurasafaris.com"
                   className="animated-underline text-white/80 hover:text-[#c5a059]"
@@ -131,10 +131,10 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-light text-white/40">
+        <div className="pt-6 sm:pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-light text-white/40 text-center sm:text-left">
           <p>© {new Date().getFullYear()} AURA SAFARIS LTD. All rights reserved.</p>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <span className="animated-underline hover:text-white transition-colors cursor-pointer">
               <span>Conservation Protocol</span>
             </span>
@@ -143,7 +143,7 @@ export default function Footer() {
             </span>
             <button
               onClick={scrollToTop}
-              className="animated-underline flex items-center gap-1.5 text-[#c5a059] hover:text-[#dfb76c] transition-colors ml-4 font-medium"
+              className="animated-underline flex items-center gap-1.5 text-[#c5a059] hover:text-[#dfb76c] transition-colors font-medium min-h-[44px]"
             >
               <span>Back To Top</span>
               <ArrowUp className="w-3.5 h-3.5 transition-transform duration-300 group-hover:-translate-y-0.5" />

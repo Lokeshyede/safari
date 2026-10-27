@@ -144,52 +144,52 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
   }
 
   return (
-    <section id="enquiry" className="relative py-28 md:py-36 bg-[#060b08] border-t border-white/5">
-      {/* Background radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#1a3826]/15 rounded-full blur-[140px] pointer-events-none" />
+    <section id="enquiry" className="relative py-20 sm:py-28 md:py-36 bg-[#060b08] border-t border-white/5 overflow-hidden">
+      {/* Background radial glow - optimized for mobile performance */}
+      <div className="hidden sm:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-[#1a3826]/20 rounded-full blur-[60px] sm:blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 md:px-12">
         {/* Section Header */}
-        <div ref={headerRef} className="text-center mb-16">
-          <div className="section-header-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#0c1811] mb-5">
+        <div ref={headerRef} className="text-center mb-12 sm:mb-16">
+          <div className="section-header-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#0c1811] mb-4 sm:mb-5">
             <Compass className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a059] font-medium">
+            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
               Bespoke Itinerary Planning
             </span>
           </div>
           <WordReveal
             as="h2"
-            className="section-header-heading font-serif-luxury text-3xl sm:text-5xl text-[#f7f4ed] tracking-[-0.01em]"
+            className="section-header-heading font-serif-luxury text-2xl sm:text-4xl md:text-5xl text-[#f7f4ed] tracking-[-0.01em]"
             text="Begin Your Indian Expedition"
           />
-          <p className="section-header-paragraph mt-4 font-sans-ui text-sm sm:text-base text-white/60 font-light max-w-lg mx-auto leading-relaxed">
+          <p className="section-header-paragraph mt-3 sm:mt-4 font-sans-ui text-xs sm:text-sm md:text-base text-white/60 font-light max-w-lg mx-auto leading-relaxed">
             Our private safari directors design every itinerary individually. Submit your travel parameters below to receive a bespoke itinerary proposal and lodge availability.
           </p>
         </div>
 
         {/* Success State Modal / Card */}
         {submissionSuccess ? (
-          <div className="rounded-2xl border border-[#c5a059]/40 bg-[#0c1811]/90 backdrop-blur-xl p-8 sm:p-12 text-center shadow-2xl animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-[#132a1c] border border-[#c5a059] flex items-center justify-center mx-auto mb-6 text-[#c5a059]">
-              <CheckCircle2 className="w-8 h-8" />
+          <div className="rounded-2xl border border-[#c5a059]/40 bg-[#0c1811]/90 backdrop-blur-xl p-5 sm:p-8 md:p-12 text-center shadow-2xl animate-fade-in">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#132a1c] border border-[#c5a059] flex items-center justify-center mx-auto mb-5 sm:mb-6 text-[#c5a059]">
+              <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
 
-            <span className="text-xs font-mono uppercase tracking-[0.3em] text-[#c5a059] block mb-2">
+            <span className="text-xs font-mono uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] block mb-2">
               Enquiry Dossier Received
             </span>
             <h3 className="font-serif-luxury text-2xl sm:text-4xl text-[#f7f4ed]">
               Thank You, {formData.fullName}
             </h3>
 
-            <div className="my-6 inline-block px-5 py-2 rounded-full border border-[#c5a059]/30 bg-black/40 text-xs font-mono text-[#c5a059]">
+            <div className="my-5 sm:my-6 inline-block px-4 sm:px-5 py-2 rounded-full border border-[#c5a059]/30 bg-black/40 text-[11px] sm:text-xs font-mono text-[#c5a059]">
               REFERENCE CODE: {referenceId}
             </div>
 
-            <p className="text-sm text-white/75 font-light leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-white/75 font-light leading-relaxed max-w-xl mx-auto">
               Your safari enquiry for <strong className="text-white font-medium">{formData.destination}</strong> ({formData.guests}) has been logged with our senior concierge in New Delhi & Nagpur.
             </p>
 
-            <div className="mt-8 p-6 rounded-xl border border-white/10 bg-white/5 max-w-lg mx-auto text-left text-xs space-y-2.5">
+            <div className="mt-6 sm:mt-8 p-4 sm:p-6 rounded-xl border border-white/10 bg-white/5 max-w-lg mx-auto text-left text-xs space-y-2.5">
               <div className="flex justify-between border-b border-white/10 pb-2">
                 <span className="text-white/50">Travel Window:</span>
                 <span className="text-white font-mono">{formData.travelDate}</span>
@@ -204,18 +204,18 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
               </div>
               <div className="flex justify-between pt-1">
                 <span className="text-white/50">Enquiry Status:</span>
-                <span className="text-amber-300 font-mono">Pending Custom Itinerary & Lodge Availability Review</span>
+                <span className="text-amber-300 font-mono text-[11px] sm:text-xs">Pending Custom Itinerary Review</span>
               </div>
             </div>
 
-            <div className="mt-6 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 max-w-lg mx-auto text-left text-[11px] text-amber-200/90 leading-relaxed">
+            <div className="mt-5 sm:mt-6 p-3.5 sm:p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 max-w-lg mx-auto text-left text-[11px] text-amber-200/90 leading-relaxed">
               <strong>Permit Booking Clarification:</strong> Submitting this enquiry initiates itinerary planning and lodge reservations. It does <em>not</em> imply or constitute a confirmed Forest Department safari permit. Official park entry permits are strictly issued by the Madhya Pradesh (MP Online) and Maharashtra (MahaForest) Forest Departments subject to official government quotas and government ID verification.
             </div>
 
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               <button
                 onClick={resetForm}
-                className="btn-outline-gold px-8 py-3 rounded-full text-xs font-semibold tracking-widest uppercase inline-flex items-center gap-2"
+                className="btn-outline-gold px-7 py-3 rounded-full text-xs font-semibold tracking-widest uppercase inline-flex items-center gap-2 min-h-[44px]"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Submit Another Request</span>
@@ -227,7 +227,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="rounded-2xl border border-white/10 bg-[#0c1811]/70 backdrop-blur-xl p-8 sm:p-12 shadow-2xl"
+            className="rounded-2xl border border-white/10 bg-[#0c1811]/70 backdrop-blur-xl p-5 sm:p-8 md:p-12 shadow-2xl"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               {/* Full Name */}

@@ -32,42 +32,53 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
     return () => triggers.forEach((t) => t.kill())
   }, [])
 
+  useEffect(() => {
+    if (selectedDest) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [selectedDest])
+
   return (
-    <section id="destinations" className="relative py-28 md:py-36 bg-[#060b08] border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+    <section id="destinations" className="relative py-20 sm:py-28 md:py-36 bg-[#060b08] border-t border-white/5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12">
         {/* Section Header */}
         <div
           ref={headerRef}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-16 md:mb-20"
+          className="flex flex-col md:flex-row md:items-end justify-between mb-12 sm:mb-16 md:mb-20"
         >
           <div>
-            <div className="section-header-pill inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c5a059]/30 bg-[#0c1811] mb-4">
+            <div className="section-header-pill inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c5a059]/30 bg-[#0c1811] mb-3 sm:mb-4">
               <Compass className="w-3.5 h-3.5 text-[#c5a059]" />
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a059] font-medium">
+              <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
                 Sanctuaries & Habitats
               </span>
             </div>
             <WordReveal
               as="h2"
-              className="section-header-heading font-serif-luxury text-3xl sm:text-4xl md:text-5xl text-[#f7f4ed] tracking-[-0.01em]"
+              className="section-header-heading font-serif-luxury text-2xl sm:text-4xl md:text-5xl text-[#f7f4ed] tracking-[-0.01em]"
               text="Curated Indian Tiger Reserves"
             />
           </div>
-          <p className="section-header-paragraph mt-4 md:mt-0 font-sans-ui text-xs md:text-sm text-white/60 max-w-md font-light leading-relaxed">
+          <p className="section-header-paragraph mt-3 sm:mt-4 md:mt-0 font-sans-ui text-xs md:text-sm text-white/60 max-w-md font-light leading-relaxed">
             Pristine sal forests, open bamboo meadows, and prime tiger landscapes of Central India, explored with certified naturalists.
           </p>
         </div>
 
         {/* Minimalist Destinations Grid - Responsive 3-Card Layout */}
-        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
           {DESTINATIONS.map((dest) => (
             <div
               key={dest.id}
-              className="destination-card group relative rounded-2xl border border-white/10 bg-[#0c1811]/60 backdrop-blur-md p-6 sm:p-8 md:p-9 flex flex-col justify-between transition-all duration-500 hover:border-[#c5a059]/40 hover:bg-[#0c1811]/90 shadow-xl"
+              className="destination-card group relative rounded-2xl border border-white/10 bg-[#0c1811]/60 backdrop-blur-md p-5 sm:p-7 md:p-9 flex flex-col justify-between transition-all duration-500 hover:border-[#c5a059]/40 hover:bg-[#0c1811]/90 shadow-xl"
             >
               <div>
                 {/* Meta Coordinates & Index */}
-                <div className="destination-card-meta flex flex-wrap items-center justify-between gap-y-1 text-xs font-mono text-[#c5a059] mb-4 sm:mb-5">
+                <div className="destination-card-meta flex flex-wrap items-center justify-between gap-y-1 text-[11px] sm:text-xs font-mono text-[#c5a059] mb-3 sm:mb-5">
                   <span>{dest.number} // {dest.state}, {dest.country}</span>
                   <span className="text-white/40">{dest.coordinates}</span>
                 </div>
@@ -75,21 +86,21 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
                 {/* Destination Title with Elegant Word Reveal */}
                 <WordReveal
                   as="h3"
-                  className="destination-card-title font-serif-luxury text-2xl md:text-3xl text-[#f7f4ed] group-hover:text-[#c5a059] transition-colors duration-300"
+                  className="destination-card-title font-serif-luxury text-xl sm:text-2xl md:text-3xl text-[#f7f4ed] group-hover:text-[#c5a059] transition-colors duration-300"
                   text={dest.title}
                 />
 
                 {/* Short Description */}
-                <p className="destination-card-desc mt-3 text-sm text-[#f7f4ed]/75 font-light leading-relaxed">
+                <p className="destination-card-desc mt-2.5 sm:mt-3 text-xs sm:text-sm text-[#f7f4ed]/75 font-light leading-relaxed">
                   {dest.shortDescription}
                 </p>
 
                 {/* Key Wildlife Tags */}
-                <div className="mt-5 sm:mt-6 flex flex-wrap gap-2">
+                <div className="mt-4 sm:mt-6 flex flex-wrap gap-1.5 sm:gap-2">
                   {dest.wildlifeTags.map((w) => (
                     <span
                       key={w}
-                      className="destination-card-tag text-[11px] px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-white/70"
+                      className="destination-card-tag text-[10px] sm:text-[11px] px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-white/70"
                     >
                       {w}
                     </span>
@@ -98,15 +109,15 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
               </div>
 
               {/* Bottom Details & Action */}
-              <div className="destination-card-footer mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-white/10 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs text-white/50 font-light truncate">
+              <div className="destination-card-footer mt-5 sm:mt-8 pt-4 sm:pt-6 border-t border-white/10 flex items-center justify-between gap-2 sm:gap-3">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-white/50 font-light truncate">
                   <Calendar className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
                   <span className="truncate">{dest.seasonInfo.split('|')[0].trim()}</span>
                 </div>
 
                 <button
                   onClick={() => setSelectedDest(dest)}
-                  className="animated-underline text-xs uppercase tracking-widest text-[#c5a059] hover:text-[#dfb76c] flex items-center gap-1 font-medium shrink-0 min-h-[44px]"
+                  className="animated-underline text-[11px] sm:text-xs uppercase tracking-widest text-[#c5a059] hover:text-[#dfb76c] flex items-center gap-1 font-medium shrink-0 min-h-[44px]"
                 >
                   <span>EXPLORE DESTINATION</span>
                   <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -119,11 +130,11 @@ export default function Destinations({ onSelectDestinationForEnquiry }: Destinat
 
       {/* Destination Modal Details */}
       {selectedDest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-xl animate-fade-in">
-          <div className="relative w-full max-w-2xl rounded-2xl border border-[#c5a059]/30 bg-[#0a120c] p-6 sm:p-10 text-white shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-xl animate-fade-in">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-[#c5a059]/30 bg-[#0a120c] p-5 sm:p-8 md:p-10 text-white shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedDest(null)}
-              className="absolute top-4 right-4 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors"
+              className="absolute top-3 right-3 sm:top-6 sm:right-6 min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-white/40 transition-colors"
               aria-label="Close details"
             >
               <X className="w-5 h-5" />

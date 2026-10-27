@@ -43,12 +43,14 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (isReduced) return
 
-    const ctx = gsap.context(() => {
-      // ----------------------------------------------------
+    const mm = gsap.matchMedia()
+
+    // ----------------------------------------------------
+    // DESKTOP: Full layered 3D parallax & volumetric atmospheric effects
+    // ----------------------------------------------------
+    mm.add('(min-width: 1024px)', () => {
       // SECTION 5: ENTER THE FOREST (Layered Parallax)
-      // ----------------------------------------------------
       if (sec5Ref.current && sec5BgRef.current) {
-        // Deep background image slow parallax
         gsap.fromTo(
           sec5BgRef.current,
           { y: '-10%', scale: 1.15 },
@@ -65,7 +67,6 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           }
         )
 
-        // Volumetric sunbeams drift
         if (sec5SunbeamsRef.current) {
           gsap.fromTo(
             sec5SunbeamsRef.current,
@@ -84,7 +85,6 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           )
         }
 
-        // Foreground leaves parallax (moves faster for 3D depth)
         if (sec5LeavesLeftRef.current) {
           gsap.fromTo(
             sec5LeavesLeftRef.current,
@@ -121,15 +121,11 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           )
         }
 
-        // Section 5 Cinematic Text Animation
         setupSceneTextAnimation(sec5Ref.current, { headingRestingTracking: '-0.02em' })
       }
 
-      // ----------------------------------------------------
       // SECTION 6: WILDLIFE REVEAL (Layered Foliage Parting)
-      // ----------------------------------------------------
       if (sec6Ref.current && sec6ImageRef.current) {
-        // Subtle image zoom & brightness adjustment
         gsap.fromTo(
           sec6ImageRef.current,
           { scale: 1.15, filter: 'brightness(0.75)' },
@@ -146,7 +142,6 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           }
         )
 
-        // Foliage parting effect
         if (sec6FoliageLeftRef.current) {
           gsap.fromTo(
             sec6FoliageLeftRef.current,
@@ -183,13 +178,10 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           )
         }
 
-        // Section 6 Cinematic Text Animation
         setupSceneTextAnimation(sec6Ref.current, { headingRestingTracking: 'normal' })
       }
 
-      // ----------------------------------------------------
       // SECTION 7: INTO THE WILDERNESS (River & Trail Parallax)
-      // ----------------------------------------------------
       if (sec7Ref.current && sec7ImageRef.current) {
         gsap.fromTo(
           sec7ImageRef.current,
@@ -207,7 +199,6 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           }
         )
 
-        // River mist float
         if (sec7MistRef.current) {
           gsap.fromTo(
             sec7MistRef.current,
@@ -226,13 +217,10 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           )
         }
 
-        // Section 7 Cinematic Text Animation
         setupSceneTextAnimation(sec7Ref.current, { headingRestingTracking: '-0.01em' })
       }
 
-      // ----------------------------------------------------
       // SECTION 8: YOUR FOREST ESCAPE (Lodge Sanctuary)
-      // ----------------------------------------------------
       if (sec8Ref.current && sec8ImageRef.current) {
         gsap.fromTo(
           sec8ImageRef.current,
@@ -250,12 +238,43 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           }
         )
 
-        // Section 8 Cinematic Text Animation
         setupSceneTextAnimation(sec8Ref.current, { headingRestingTracking: '-0.02em' })
       }
-    }, containerRef)
+    })
 
-    return () => ctx.revert()
+    // ----------------------------------------------------
+    // MOBILE: Smooth, lightweight zoom & gentle entrance without heavy compositing
+    // ----------------------------------------------------
+    mm.add('(max-width: 1023px)', () => {
+      const sections = [
+        { ref: sec5Ref, imgRef: sec5BgRef },
+        { ref: sec6Ref, imgRef: sec6ImageRef },
+        { ref: sec7Ref, imgRef: sec7ImageRef },
+        { ref: sec8Ref, imgRef: sec8ImageRef },
+      ]
+
+      sections.forEach(({ ref, imgRef }) => {
+        if (ref.current && imgRef.current) {
+          gsap.fromTo(
+            imgRef.current,
+            { scale: 1.06 },
+            {
+              scale: 1.0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: ref.current,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 0.6,
+              },
+            }
+          )
+          setupSceneTextAnimation(ref.current)
+        }
+      })
+    })
+
+    return () => mm.revert()
   }, [])
 
   return (
@@ -266,7 +285,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
       <section
         ref={sec5Ref}
         id="section-forest-canopy"
-        className="relative w-full h-[100svh] min-h-[640px] flex items-center justify-center overflow-hidden"
+        className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden"
       >
         {/* Layer 1: Background Misty Ancient Canopy */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -293,10 +312,10 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-[#060b08]/70 via-transparent to-[#060b08]/70 pointer-events-none" />
         <div className="absolute inset-0 film-grain pointer-events-none opacity-30" />
 
-        {/* Layer 4: Foreground Framing Foliage (Parallax Left) */}
+        {/* Layer 4: Foreground Framing Foliage (Parallax Left - Desktop/Tablet only) */}
         <div
           ref={sec5LeavesLeftRef}
-          className="absolute -left-12 bottom-0 w-52 sm:w-80 md:w-[480px] h-[380px] sm:h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-75 sm:opacity-90"
+          className="hidden sm:block absolute -left-12 bottom-0 w-52 sm:w-80 md:w-[480px] h-[380px] sm:h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-75 sm:opacity-90"
         >
           <svg viewBox="0 0 400 500" className="w-full h-full fill-[#040805]">
             <path d="M0,500 C80,450 160,380 180,260 C200,140 130,50 40,0 C20,70 10,180 0,280 Z" opacity="0.95" />
@@ -305,10 +324,10 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           </svg>
         </div>
 
-        {/* Layer 5: Foreground Framing Foliage (Parallax Right) */}
+        {/* Layer 5: Foreground Framing Foliage (Parallax Right - Desktop/Tablet only) */}
         <div
           ref={sec5LeavesRightRef}
-          className="absolute -right-12 bottom-0 w-52 sm:w-80 md:w-[480px] h-[380px] sm:h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-75 sm:opacity-90"
+          className="hidden sm:block absolute -right-12 bottom-0 w-52 sm:w-80 md:w-[480px] h-[380px] sm:h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-75 sm:opacity-90"
         >
           <svg viewBox="0 0 400 500" className="w-full h-full fill-[#040805]">
             <path d="M400,500 C320,450 240,380 220,260 C200,140 270,50 360,0 C380,70 390,180 400,280 Z" opacity="0.95" />
@@ -318,21 +337,21 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         </div>
 
         {/* Minimal Editorial Text */}
-        <div className="scene-content relative z-20 max-w-4xl mx-auto px-6 text-center">
-          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-6">
+        <div className="scene-content relative z-20 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-6">
             <Compass className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a059] font-medium">
+            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
               05 // Deep Canopy
             </span>
           </div>
 
           <WordReveal
             as="h2"
-            className="scene-heading font-serif-luxury text-4xl sm:text-6xl md:text-7xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-tight drop-shadow-2xl"
+            className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-tight drop-shadow-2xl"
             text="Enter The Forest"
           />
 
-          <p className="scene-subtitle mt-4 font-sans-ui text-sm sm:text-base text-[#f7f4ed]/80 font-light tracking-[0.04em] max-w-lg mx-auto leading-relaxed drop-shadow-md">
+          <p className="scene-subtitle mt-3 sm:mt-4 font-sans-ui text-sm sm:text-base text-[#f7f4ed]/80 font-light tracking-[0.02em] sm:tracking-[0.04em] max-w-lg mx-auto leading-relaxed drop-shadow-md">
             Volumetric dawn rays filtering through ancient mahogany and emerald moss.
           </p>
         </div>
@@ -344,7 +363,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
       <section
         ref={sec6Ref}
         id="section-wildlife-reveal"
-        className="relative w-full h-[100svh] min-h-[560px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+        className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
       >
         {/* Full-bleed Majestic Wildlife Image */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -359,7 +378,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Parting Foreground Foliage Overlay (Left) */}
         <div
           ref={sec6FoliageLeftRef}
-          className="absolute inset-y-0 left-0 w-1/2 pointer-events-none select-none z-10 will-change-transform bg-gradient-to-r from-[#040805] via-[#040805]/70 to-transparent"
+          className="absolute inset-y-0 left-0 w-1/2 pointer-events-none select-none z-10 will-change-transform bg-gradient-to-r from-[#040805] via-[#040805]/70 to-transparent opacity-50 sm:opacity-100"
         >
           <div className="w-full h-full opacity-60 film-grain" />
         </div>
@@ -367,7 +386,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Parting Foreground Foliage Overlay (Right) */}
         <div
           ref={sec6FoliageRightRef}
-          className="absolute inset-y-0 right-0 w-1/2 pointer-events-none select-none z-10 will-change-transform bg-gradient-to-l from-[#040805] via-[#040805]/70 to-transparent"
+          className="absolute inset-y-0 right-0 w-1/2 pointer-events-none select-none z-10 will-change-transform bg-gradient-to-l from-[#040805] via-[#040805]/70 to-transparent opacity-50 sm:opacity-100"
         >
           <div className="w-full h-full opacity-60 film-grain" />
         </div>
@@ -379,22 +398,22 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Minimalist Wildlife Caption Overlay (Positioned Bottom-Left) */}
         <div
           ref={sec6ContentRef}
-          className="scene-content absolute left-6 right-6 sm:left-12 sm:right-auto md:left-20 bottom-12 sm:bottom-24 z-20 max-w-xl text-left"
+          className="scene-content absolute left-4 right-4 sm:left-12 sm:right-auto md:left-20 bottom-8 sm:bottom-24 z-20 max-w-xl text-left"
         >
-          <div className="scene-pill inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/70 backdrop-blur-md mb-4">
+          <div className="scene-pill inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/70 backdrop-blur-md mb-3 sm:mb-4">
             <Eye className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a059] font-medium">
+            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
               06 // The Sovereign Gaze
             </span>
           </div>
 
           <WordReveal
             as="h3"
-            className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl text-[#f7f4ed] leading-tight drop-shadow-2xl"
+            className="scene-heading font-serif-luxury text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f7f4ed] leading-tight drop-shadow-2xl"
             text="Nature's Apex"
           />
 
-          <p className="scene-subtitle mt-3 font-sans-ui text-sm sm:text-base text-[#f7f4ed]/85 font-light leading-relaxed max-w-md drop-shadow-md">
+          <p className="scene-subtitle mt-2 sm:mt-3 font-sans-ui text-xs sm:text-base text-[#f7f4ed]/85 font-light leading-relaxed max-w-md drop-shadow-md">
             Protected deep inside the sanctuary. Where shadows breathe and amber eyes watch in absolute silence.
           </p>
         </div>
@@ -406,7 +425,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
       <section
         ref={sec7Ref}
         id="section-forest-river"
-        className="relative w-full h-[100svh] min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+        className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
       >
         {/* Full-bleed River Landscape */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -435,22 +454,22 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Minimal Wilderness Editorial Text */}
         <div
           ref={sec7ContentRef}
-          className="scene-content relative z-20 max-w-3xl mx-auto px-6 text-center"
+          className="scene-content relative z-20 max-w-3xl mx-auto px-4 sm:px-6 text-center"
         >
-          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-5">
+          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-5">
             <Shield className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a059] font-medium">
+            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
               07 // Primordial Waterways
             </span>
           </div>
 
           <WordReveal
             as="h2"
-            className="scene-heading font-serif-luxury text-4xl sm:text-6xl md:text-7xl text-[#f7f4ed] tracking-[-0.01em] leading-tight drop-shadow-2xl"
+            className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-[#f7f4ed] tracking-[-0.01em] leading-tight drop-shadow-2xl"
             text="Into The Wilderness"
           />
 
-          <p className="scene-subtitle mt-4 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/85 font-light tracking-[0.03em] max-w-lg mx-auto leading-relaxed drop-shadow-md">
+          <p className="scene-subtitle mt-3 sm:mt-4 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/85 font-light tracking-[0.02em] sm:tracking-[0.03em] max-w-lg mx-auto leading-relaxed drop-shadow-md">
             Cross weathered wooden trails into secluded valleys untouched by time.
           </p>
         </div>
@@ -462,7 +481,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
       <section
         ref={sec8Ref}
         id="section-forest-lodge"
-        className="relative w-full h-[100svh] min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+        className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
       >
         {/* Full-bleed Luxury Lodge Image */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -491,29 +510,29 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Minimal Hero Content (Exact User Specifications) */}
         <div
           ref={sec8ContentRef}
-          className="scene-content relative z-20 max-w-4xl mx-auto px-6 md:px-12 text-center flex flex-col items-center justify-center"
+          className="scene-content relative z-20 max-w-4xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center justify-center"
         >
-          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/40 bg-[#060b08]/60 backdrop-blur-md mb-6">
+          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/40 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-6">
             <Sparkles className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a059] font-medium">
+            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
               08 // Sanctuary In The Clouds
             </span>
           </div>
 
           <WordReveal
             as="h2"
-            className="scene-heading font-serif-luxury text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-tight drop-shadow-2xl"
+            className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-tight drop-shadow-2xl"
             text="Your Wild Escape Awaits"
           />
 
-          <p className="scene-subtitle mt-5 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/90 font-light tracking-[0.04em] max-w-xl mx-auto leading-relaxed drop-shadow-md">
+          <p className="scene-subtitle mt-4 sm:mt-5 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/90 font-light tracking-[0.02em] sm:tracking-[0.04em] max-w-xl mx-auto leading-relaxed drop-shadow-md">
             Private cantilevered decks, starlit fire pits, and infinity plunge pools overlooking the misty jungle canopy.
           </p>
 
-          <div className="scene-cta mt-9">
+          <div className="scene-cta mt-6 sm:mt-9">
             <button
               onClick={onPlanSafari}
-              className="btn-gold px-10 py-4 rounded-full text-xs font-semibold tracking-[0.2em] uppercase flex items-center gap-3 group shadow-[0_4px_30px_rgba(197,160,89,0.35)]"
+              className="btn-gold px-8 py-3.5 sm:px-10 sm:py-4 rounded-full text-xs font-semibold tracking-[0.18em] sm:tracking-[0.2em] uppercase flex items-center gap-3 group shadow-[0_4px_30px_rgba(197,160,89,0.35)] min-h-[44px]"
             >
               <span>Plan Your Safari</span>
               <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />

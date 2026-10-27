@@ -138,7 +138,10 @@ export function setupSceneTextAnimation(
       playEntrance()
     },
     onLeave: () => {
-      // Smooth upward drift and gentle fade as user scrolls past section downwards
+      // On mobile, never hide text on leave to prevent blank sections and clipped content
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) return
+
+      // Smooth upward drift and gentle fade as user scrolls past section downwards on desktop
       gsap.to(contentEl, {
         opacity: 0,
         y: -28,
@@ -171,7 +174,10 @@ export function setupSceneTextAnimation(
       if (pillEl) gsap.to(pillEl, { opacity: 1, y: 0, duration: 0.4 })
     },
     onLeaveBack: () => {
-      // Smooth downward drift and fade when scrolling back up above section
+      // On mobile, never hide text on leaveBack to prevent abrupt scene jumps
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) return
+
+      // Smooth downward drift and fade when scrolling back up above section on desktop
       if (!options.isFirstScene) {
         gsap.to(contentEl, {
           opacity: 0,

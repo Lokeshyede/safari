@@ -20,6 +20,7 @@ interface SceneData {
   indexLabel: string
   coordinates: string
   videoSrc: string
+  poster: string
   actionLabel?: string
   onAction?: () => void
 }
@@ -48,6 +49,7 @@ export default function CinematicStory({
       indexLabel: '01 / 04',
       coordinates: '22°20\'00"N 80°37\'00"E • KANHA TIGER RESERVE',
       videoSrc: '/videos/jungle-1.mp4',
+      poster: '/images/forest-canopy.jpg',
     },
     {
       id: 'scene-2',
@@ -57,6 +59,7 @@ export default function CinematicStory({
       indexLabel: '02 / 04',
       coordinates: '21°42\'00"N 79°18\'00"E • PENCH TIGER RESERVE',
       videoSrc: '/videos/jungle-2.mp4',
+      poster: '/images/forest-river.jpg',
     },
     {
       id: 'scene-3',
@@ -66,6 +69,7 @@ export default function CinematicStory({
       indexLabel: '03 / 04',
       coordinates: '20°14\'00"N 79°24\'00"E • TADOBA-ANDHARI TIGER RESERVE',
       videoSrc: '/videos/jungle-3.mp4',
+      poster: '/images/wildlife-tiger.jpg',
       actionLabel: 'Explore Safaris',
       onAction: onExploreSafaris,
     },
@@ -77,6 +81,7 @@ export default function CinematicStory({
       indexLabel: '04 / 04',
       coordinates: 'CENTRAL HIGHLANDS • SATPURA-MAIKAL LANDSCAPE',
       videoSrc: '/videos/jungle-4.mp4',
+      poster: '/images/forest-lodge.jpg',
       actionLabel: 'Plan Your Safari',
       onAction: onPlanSafari,
     },
@@ -460,323 +465,101 @@ export default function CinematicStory({
     // =========================================================================
     // 2. MOBILE EXPERIENCE (max-width: 1023px)
     // Discrete sequential full-screen (100svh) sections that appear ONE AFTER ANOTHER
-    // Native touch scroll with smooth video reveals, clip-path apertures, and scale transitions
+    // Native touch scroll with smooth video reveals, safe opacity, and scale transitions
     // =========================================================================
     mm.add('(max-width: 1023px)', () => {
-      // Clear desktop properties so scenes render in natural vertical flow
+      // Configure ScrollTrigger for mobile dynamic address bars
+      ScrollTrigger.config({ ignoreMobileResize: true })
+
+      // Clear desktop properties so scenes render in natural vertical flow without clipping
       gsap.set([scene1, scene2, scene3, scene4], {
-        clearProps: 'clipPath,zIndex,opacity,transform',
+        clearProps: 'clipPath,zIndex,opacity,transform,position',
       })
       gsap.set([video1, video2, video3, video4], {
         clearProps: 'transform,scale,opacity',
       })
 
-      // Mobile Scene 1 Playback Trigger
-      ScrollTrigger.create({
-        trigger: scene1,
-        start: 'top 60%',
-        end: 'bottom 40%',
-        onEnter: () => {
-          setActiveScene(0)
-          playVideo(0)
-          pauseVideo(1)
-          pauseVideo(2)
-          pauseVideo(3)
-        },
-        onEnterBack: () => {
-          setActiveScene(0)
-          playVideo(0)
-          pauseVideo(1)
-          pauseVideo(2)
-          pauseVideo(3)
-        },
+      // Setup clean per-scene trigger for video playback & active HUD tracking
+      scenes.forEach((_, idx) => {
+        const scEl = sceneRefs.current[idx]
+        if (!scEl) return
+
+        ScrollTrigger.create({
+          trigger: scEl,
+          start: 'top 50%',
+          end: 'bottom 50%',
+          onEnter: () => {
+            setActiveScene(idx)
+            playVideo(idx)
+            scenes.forEach((_, other) => {
+              if (other !== idx) pauseVideo(other)
+            })
+          },
+          onEnterBack: () => {
+            setActiveScene(idx)
+            playVideo(idx)
+            scenes.forEach((_, other) => {
+              if (other !== idx) pauseVideo(other)
+            })
+          },
+          onLeave: () => {
+            pauseVideo(idx)
+          },
+          onLeaveBack: () => {
+            pauseVideo(idx)
+          },
+        })
+
+        // Text reveal animation on mobile (Scenes 2, 3, 4)
+        if (idx > 0) {
+          const c = contentRefs.current[idx]
+          if (c) {
+            const pill = c.querySelector('.scene-pill')
+            const words = c.querySelectorAll('.scene-heading .word-inner')
+            const sub = c.querySelector('.scene-subtitle')
+            const cta = c.querySelector('.scene-cta')
+
+            const tl = gsap.timeline({
+              scrollTrigger: {
+                trigger: scEl,
+                start: 'top 65%',
+                toggleActions: 'play none none reverse',
+              },
+            })
+
+            if (pill) tl.fromTo(pill, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.4 }, 0)
+            if (words.length > 0) {
+              tl.fromTo(
+                words,
+                { opacity: 0, y: '80%' },
+                { opacity: 1, y: '0%', duration: 0.65, stagger: 0.035, ease: 'power2.out' },
+                0.08
+              )
+            }
+            if (sub) tl.fromTo(sub, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5 }, 0.22)
+            if (cta) tl.fromTo(cta, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45 }, 0.3)
+          }
+        }
+
+        // Gentle, hardware-accelerated subtle zoom without destructive clipping
+        const v = videoRefs.current[idx]
+        if (v) {
+          gsap.fromTo(
+            v,
+            { scale: 1.05 },
+            {
+              scale: 1.0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: scEl,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 0.6,
+              },
+            }
+          )
+        }
       })
-
-      // Mobile Scene 2 Transition (Entering over Scene 1 with clip-path, fade, and zoom)
-      if (video2 && scene2) {
-        gsap.fromTo(
-          scene2,
-          { clipPath: 'inset(10% 0% 0% 0%)' },
-          {
-            clipPath: 'inset(0% 0% 0% 0%)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: scene2,
-              start: 'top 95%',
-              end: 'top 15%',
-              scrub: 0.8,
-            },
-          }
-        )
-
-        gsap.fromTo(
-          video2,
-          { scale: 1.12, opacity: 0.4 },
-          {
-            scale: 1.0,
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: scene2,
-              start: 'top 95%',
-              end: 'top 15%',
-              scrub: 0.8,
-            },
-          }
-        )
-
-        if (video1) {
-          gsap.fromTo(
-            video1,
-            { scale: 1.0, opacity: 1 },
-            {
-              scale: 0.95,
-              opacity: 0.2,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: scene2,
-                start: 'top 95%',
-                end: 'top 15%',
-                scrub: 0.8,
-              },
-            }
-          )
-        }
-
-        const s2Words = content2?.querySelectorAll('.scene-heading .word-inner')
-        const s2Sub = content2?.querySelector('.scene-subtitle')
-        const s2Pill = content2?.querySelector('.scene-pill')
-
-        if (s2Words && s2Words.length > 0) {
-          const tl2 = gsap.timeline({
-            scrollTrigger: {
-              trigger: scene2,
-              start: 'top 55%',
-              toggleActions: 'play none none reverse',
-            },
-          })
-          if (s2Pill) tl2.fromTo(s2Pill, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.45 })
-          tl2.fromTo(
-            s2Words,
-            { opacity: 0, y: '100%', letterSpacing: '0.04em' },
-            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.75, stagger: 0.04, ease: 'power3.out' },
-            '-=0.25'
-          )
-          if (s2Sub) tl2.fromTo(s2Sub, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.35')
-        }
-
-        ScrollTrigger.create({
-          trigger: scene2,
-          start: 'top 60%',
-          end: 'bottom 40%',
-          onEnter: () => {
-            setActiveScene(1)
-            playVideo(1)
-            pauseVideo(0)
-            pauseVideo(2)
-            pauseVideo(3)
-          },
-          onEnterBack: () => {
-            setActiveScene(1)
-            playVideo(1)
-            pauseVideo(0)
-            pauseVideo(2)
-            pauseVideo(3)
-          },
-        })
-      }
-
-      // Mobile Scene 3 Transition (Entering over Scene 2 with layered crossfade, clip-path, and scale)
-      if (video3 && scene3) {
-        gsap.fromTo(
-          scene3,
-          { clipPath: 'inset(10% 0% 0% 0%)' },
-          {
-            clipPath: 'inset(0% 0% 0% 0%)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: scene3,
-              start: 'top 95%',
-              end: 'top 15%',
-              scrub: 0.8,
-            },
-          }
-        )
-
-        gsap.fromTo(
-          video3,
-          { scale: 1.10, opacity: 0.4 },
-          {
-            scale: 1.0,
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: scene3,
-              start: 'top 95%',
-              end: 'top 15%',
-              scrub: 0.8,
-            },
-          }
-        )
-
-        if (video2) {
-          gsap.fromTo(
-            video2,
-            { scale: 1.0, opacity: 1 },
-            {
-              scale: 0.95,
-              opacity: 0.2,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: scene3,
-                start: 'top 95%',
-                end: 'top 15%',
-                scrub: 0.8,
-              },
-            }
-          )
-        }
-
-        const s3Words = content3?.querySelectorAll('.scene-heading .word-inner')
-        const s3Sub = content3?.querySelector('.scene-subtitle')
-        const s3Pill = content3?.querySelector('.scene-pill')
-        const s3Cta = content3?.querySelector('.scene-cta')
-
-        if (s3Words && s3Words.length > 0) {
-          const tl3 = gsap.timeline({
-            scrollTrigger: {
-              trigger: scene3,
-              start: 'top 55%',
-              toggleActions: 'play none none reverse',
-            },
-          })
-          if (s3Pill) tl3.fromTo(s3Pill, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.45 })
-          tl3.fromTo(
-            s3Words,
-            { opacity: 0, y: '100%', letterSpacing: '0.04em' },
-            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.75, stagger: 0.04, ease: 'power3.out' },
-            '-=0.25'
-          )
-          if (s3Sub) tl3.fromTo(s3Sub, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.35')
-          if (s3Cta) tl3.fromTo(s3Cta, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.25')
-        }
-
-        ScrollTrigger.create({
-          trigger: scene3,
-          start: 'top 60%',
-          end: 'bottom 40%',
-          onEnter: () => {
-            setActiveScene(2)
-            playVideo(2)
-            pauseVideo(0)
-            pauseVideo(1)
-            pauseVideo(3)
-          },
-          onEnterBack: () => {
-            setActiveScene(2)
-            playVideo(2)
-            pauseVideo(0)
-            pauseVideo(1)
-            pauseVideo(3)
-          },
-        })
-      }
-
-      // Mobile Scene 4 Transition (Slow cinematic zoom, fade, and clip-path entrance)
-      if (video4 && scene4) {
-        gsap.fromTo(
-          scene4,
-          { clipPath: 'inset(10% 0% 0% 0%)' },
-          {
-            clipPath: 'inset(0% 0% 0% 0%)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: scene4,
-              start: 'top 95%',
-              end: 'top 15%',
-              scrub: 0.8,
-            },
-          }
-        )
-
-        gsap.fromTo(
-          video4,
-          { scale: 1.14, opacity: 0.35 },
-          {
-            scale: 1.0,
-            opacity: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: scene4,
-              start: 'top 95%',
-              end: 'top 15%',
-              scrub: 0.8,
-            },
-          }
-        )
-
-        if (video3) {
-          gsap.fromTo(
-            video3,
-            { scale: 1.0, opacity: 1 },
-            {
-              scale: 0.95,
-              opacity: 0.2,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: scene4,
-                start: 'top 95%',
-                end: 'top 15%',
-                scrub: 0.8,
-              },
-            }
-          )
-        }
-
-        const s4Words = content4?.querySelectorAll('.scene-heading .word-inner')
-        const s4Sub = content4?.querySelector('.scene-subtitle')
-        const s4Pill = content4?.querySelector('.scene-pill')
-        const s4Cta = content4?.querySelector('.scene-cta')
-
-        if (s4Words && s4Words.length > 0) {
-          const tl4 = gsap.timeline({
-            scrollTrigger: {
-              trigger: scene4,
-              start: 'top 55%',
-              toggleActions: 'play none none reverse',
-            },
-          })
-          if (s4Pill) tl4.fromTo(s4Pill, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.45 })
-          tl4.fromTo(
-            s4Words,
-            { opacity: 0, y: '100%', letterSpacing: '0.04em' },
-            { opacity: 1, y: '0%', letterSpacing: '-0.02em', duration: 0.75, stagger: 0.04, ease: 'power3.out' },
-            '-=0.25'
-          )
-          if (s4Sub) tl4.fromTo(s4Sub, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.55 }, '-=0.35')
-          if (s4Cta) tl4.fromTo(s4Cta, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.25')
-        }
-
-        ScrollTrigger.create({
-          trigger: scene4,
-          start: 'top 60%',
-          end: 'bottom 40%',
-          onEnter: () => {
-            setActiveScene(3)
-            playVideo(3)
-            pauseVideo(0)
-            pauseVideo(1)
-            pauseVideo(2)
-          },
-          onEnterBack: () => {
-            setActiveScene(3)
-            playVideo(3)
-            pauseVideo(0)
-            pauseVideo(1)
-            pauseVideo(2)
-          },
-        })
-      }
 
       // Hide HUD and pause all videos when scrolled past story into Forest Journey on mobile
       if (containerRef.current) {
@@ -797,6 +580,13 @@ export default function CinematicStory({
         })
       }
     })
+
+    // Recalculate ScrollTrigger on font load and video metadata load
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        ScrollTrigger.refresh()
+      })
+    }
 
     const handleResize = () => {
       ScrollTrigger.refresh()
@@ -906,16 +696,18 @@ export default function CinematicStory({
             }}
           >
             {/* Full-bleed Video Background */}
-            <div className="absolute inset-0 w-full h-full overflow-hidden">
+            <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#060b08]">
               <video
                 ref={(el) => {
                   videoRefs.current[idx] = el
                 }}
                 src={scene.videoSrc}
+                poster={scene.poster}
                 muted
                 playsInline
                 loop
                 preload="metadata"
+                onLoadedMetadata={() => ScrollTrigger.refresh()}
                 className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
                 style={{
                   width: '100%',
@@ -926,8 +718,8 @@ export default function CinematicStory({
 
               {/* Cinematic Gradient Overlays for High Legibility on Mobile & Desktop */}
               <div className="absolute inset-0 bg-radial-vignette opacity-75 sm:opacity-75 pointer-events-none" />
-              <div className="absolute inset-x-0 top-0 h-32 sm:h-40 bg-gradient-to-b from-[#060b08]/90 via-[#060b08]/50 to-transparent pointer-events-none" />
-              <div className="absolute inset-x-0 bottom-0 h-40 sm:h-48 bg-gradient-to-t from-[#060b08] via-[#060b08]/60 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 top-0 h-28 sm:h-40 bg-gradient-to-b from-[#060b08]/90 via-[#060b08]/50 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-36 sm:h-48 bg-gradient-to-t from-[#060b08] via-[#060b08]/60 to-transparent pointer-events-none" />
               <div className="absolute inset-0 bg-[#060b08]/30 mix-blend-multiply pointer-events-none" />
               <div className="absolute inset-0 film-grain pointer-events-none opacity-30 sm:opacity-40" />
             </div>
@@ -937,25 +729,25 @@ export default function CinematicStory({
               ref={(el) => {
                 contentRefs.current[idx] = el
               }}
-              className="scene-content relative z-20 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center justify-center pt-12 sm:pt-0"
+              className="scene-content relative z-20 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center justify-center pt-6 sm:pt-0"
             >
               {/* Section Category Pill */}
-              <div className="scene-pill inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-6">
+              <div className="scene-pill inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/70 backdrop-blur-md mb-3 sm:mb-6">
                 <Compass className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#c5a059]" />
                 <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
                   {scene.label}
                 </span>
               </div>
 
-              {/* Majestic Headline with Word Reveal */}
+              {/* Majestic Headline with Word Reveal - Fluid responsive scaling */}
               <WordReveal
                 as="h1"
-                className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-[1.12] drop-shadow-2xl max-w-xs sm:max-w-xl md:max-w-3xl lg:max-w-4xl"
+                className="scene-heading font-serif-luxury text-2xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-normal text-[#f7f4ed] tracking-tight sm:tracking-[-0.02em] leading-[1.12] drop-shadow-2xl max-w-[300px] sm:max-w-xl md:max-w-3xl lg:max-w-4xl"
                 text={scene.title}
               />
 
               {/* Subtle, restrained supporting sentence */}
-              <p className="scene-subtitle mt-3 sm:mt-5 font-sans-ui text-xs sm:text-sm md:text-base lg:text-lg text-[#f7f4ed]/85 font-light tracking-[0.03em] max-w-xs sm:max-w-md md:max-w-xl mx-auto leading-relaxed drop-shadow-md">
+              <p className="scene-subtitle mt-2.5 sm:mt-5 font-sans-ui text-xs sm:text-sm md:text-base lg:text-lg text-[#f7f4ed]/85 font-light tracking-[0.02em] sm:tracking-[0.03em] max-w-[280px] sm:max-w-md md:max-w-xl mx-auto leading-relaxed drop-shadow-md">
                 {scene.subtitle}
               </p>
 

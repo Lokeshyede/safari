@@ -4,18 +4,23 @@ export default function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
   const [isHovered, setIsHovered] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-  const [isTouchDevice, setIsTouchDevice] = useState(false)
+  const [isTouchDevice, setIsTouchDevice] = useState(true) // Default to true until desktop confirmed
 
   useEffect(() => {
-    // Detect touch device
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    // Only enable on true desktop pointer devices with hover capability
+    const hasCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || hasCoarsePointer
+
+    if (isTouch) {
       setIsTouchDevice(true)
       return
     }
 
+    setIsTouchDevice(false)
+
     const handleMouseMove = (e: MouseEvent) => {
       setPos({ x: e.clientX, y: e.clientY })
-      if (!isVisible) setIsVisible(true)
+      setIsVisible(true)
 
       const target = e.target as HTMLElement | null
       if (
@@ -35,7 +40,7 @@ export default function CustomCursor() {
     const handleMouseLeave = () => setIsVisible(false)
     const handleMouseEnter = () => setIsVisible(true)
 
-    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
     document.addEventListener('mouseleave', handleMouseLeave)
     document.addEventListener('mouseenter', handleMouseEnter)
 
@@ -44,12 +49,12 @@ export default function CustomCursor() {
       document.removeEventListener('mouseleave', handleMouseLeave)
       document.removeEventListener('mouseenter', handleMouseEnter)
     }
-  }, [isVisible])
+  }, []) // Empty dependency array prevents re-binding
 
   if (isTouchDevice || !isVisible) return null
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
+    <div className="hidden md:block pointer-events-none fixed inset-0 z-50 overflow-hidden">
       {/* Outer subtle ring */}
       <div
         className="fixed rounded-full border border-[#c5a059]/40 transition-transform duration-200 ease-out -translate-x-1/2 -translate-y-1/2"
