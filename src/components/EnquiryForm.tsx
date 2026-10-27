@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react'
+import gsap from 'gsap'
 import {
   Compass,
   CheckCircle2,
@@ -13,7 +14,7 @@ import {
   RotateCcw,
 } from 'lucide-react'
 import WordReveal from './WordReveal'
-import { setupSectionHeaderAnimation } from '../utils/textAnimations'
+import { setupSectionHeaderAnimation, isReducedMotion } from '../utils/textAnimations'
 
 interface EnquiryFormProps {
   initialDestination?: string
@@ -57,12 +58,36 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
   const [referenceId, setReferenceId] = useState('')
 
   const headerRef = useRef<HTMLDivElement>(null)
+  const formCardRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
+    const triggers: { kill: () => void }[] = []
+
     if (headerRef.current) {
       const t = setupSectionHeaderAnimation(headerRef.current)
-      return () => t?.kill()
+      if (t) triggers.push(t)
     }
+
+    if (formCardRef.current && !isReducedMotion()) {
+      const tween = gsap.fromTo(
+        formCardRef.current,
+        { opacity: 0, y: 35 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.85,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: formCardRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      )
+      if (tween.scrollTrigger) triggers.push(tween.scrollTrigger)
+    }
+
+    return () => triggers.forEach((t) => t.kill())
   }, [])
 
   const destinationsList = [
@@ -225,6 +250,7 @@ export default function EnquiryForm({ initialDestination = '' }: EnquiryFormProp
         ) : (
           /* Main Interactive Luxury Form */
           <form
+            ref={formCardRef}
             onSubmit={handleSubmit}
             noValidate
             className="rounded-2xl border border-white/10 bg-[#0c1811]/70 backdrop-blur-xl p-5 sm:p-8 md:p-12 shadow-2xl"

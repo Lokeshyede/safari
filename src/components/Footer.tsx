@@ -1,23 +1,82 @@
+import { useEffect, useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Compass, ArrowUp, Shield, Mail, Phone } from 'lucide-react'
+import { isReducedMotion } from '../utils/textAnimations'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const CURRENT_YEAR = new Date().getFullYear()
 
 export default function Footer() {
+  const footerRef = useRef<HTMLElement>(null)
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  useEffect(() => {
+    const el = footerRef.current
+    if (!el || isReducedMotion()) return
+
+    const cols = el.querySelectorAll<HTMLElement>('.footer-col')
+    const watermark = el.querySelector<HTMLElement>('.footer-watermark')
+
+    const triggers: ScrollTrigger[] = []
+
+    if (cols.length > 0) {
+      const tween = gsap.fromTo(
+        cols,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.65,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 92%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      )
+      if (tween.scrollTrigger) triggers.push(tween.scrollTrigger)
+    }
+
+    if (watermark) {
+      const tween = gsap.fromTo(
+        watermark,
+        { opacity: 0, scale: 0.96 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 1.1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      )
+      if (tween.scrollTrigger) triggers.push(tween.scrollTrigger)
+    }
+
+    return () => triggers.forEach((t) => t.kill())
+  }, [])
+
   return (
-    <footer className="relative bg-[#040805] text-white/60 border-t border-white/10 pt-16 sm:pt-20 pb-10 sm:pb-12 overflow-hidden">
+    <footer ref={footerRef} id="footer" className="relative bg-[#040805] text-white/60 border-t border-white/10 pt-16 sm:pt-20 pb-10 sm:pb-12 overflow-hidden">
       {/* Background subtle watermark */}
-      <div className="absolute right-0 bottom-0 text-[72px] sm:text-[130px] md:text-[180px] font-serif-luxury font-bold text-white/[0.015] pointer-events-none select-none leading-none">
+      <div className="footer-watermark absolute right-0 bottom-0 text-[72px] sm:text-[130px] md:text-[180px] font-serif-luxury font-bold text-white/[0.015] pointer-events-none select-none leading-none">
         SAFARI
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12 sm:mb-16">
           {/* Brand Info */}
-          <div className="lg:col-span-1">
+          <div className="footer-col lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-full border border-[#c5a059]/40 flex items-center justify-center">
                 <Compass className="w-4 h-4 text-[#c5a059]" />
@@ -36,7 +95,7 @@ export default function Footer() {
           </div>
 
           {/* Concierge Desks */}
-          <div>
+          <div className="footer-col">
             <h4 className="text-xs uppercase tracking-[0.25em] text-[#f7f4ed] font-medium mb-4">
               Private Concierge
             </h4>
@@ -65,7 +124,7 @@ export default function Footer() {
           </div>
 
           {/* Wilderness Sanctuaries */}
-          <div>
+          <div className="footer-col">
             <h4 className="text-xs uppercase tracking-[0.25em] text-[#f7f4ed] font-medium mb-4">
               Protected Reserves
             </h4>
@@ -99,7 +158,7 @@ export default function Footer() {
           </div>
 
           {/* Affiliations & Social */}
-          <div>
+          <div className="footer-col">
             <h4 className="text-xs uppercase tracking-[0.25em] text-[#f7f4ed] font-medium mb-4">
               Conservation & Society
             </h4>

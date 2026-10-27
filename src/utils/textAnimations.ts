@@ -296,6 +296,7 @@ export function setupDestinationTitlesAnimation(
       const tags = card.querySelectorAll<HTMLElement>('.destination-card-tag')
       const footer = card.querySelector<HTMLElement>('.destination-card-footer')
 
+      gsap.set(card, { transformStyle: 'preserve-3d', transformOrigin: '50% 50%' })
       if (meta) gsap.set(meta, { opacity: 0, y: -8 })
       if (titleWords.length > 0) {
         gsap.set(titleWords, {
@@ -313,7 +314,15 @@ export function setupDestinationTitlesAnimation(
         defaults: { ease: 'power3.out' },
       })
 
-      if (meta) cardTl.to(meta, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 0)
+      // 3D tumble card entrance
+      cardTl.fromTo(
+        card,
+        { rotateX: 6, scale: 0.96, opacity: 0.35, y: 20 },
+        { rotateX: 0, scale: 1, opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' },
+        0
+      )
+
+      if (meta) cardTl.to(meta, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, 0.05)
       if (titleWords.length > 0) {
         cardTl.to(
           titleWords,
@@ -325,7 +334,7 @@ export function setupDestinationTitlesAnimation(
             stagger: 0.04,
             ease: 'power3.out',
           },
-          0.08
+          0.1
         )
       }
       if (desc) cardTl.to(desc, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, 0.2)
@@ -356,6 +365,7 @@ export function setupDestinationTitlesAnimation(
     const tags = card.querySelectorAll<HTMLElement>('.destination-card-tag')
     const footer = card.querySelector<HTMLElement>('.destination-card-footer')
 
+    gsap.set(card, { transformStyle: 'preserve-3d', transformOrigin: '50% 50%' })
     if (meta) gsap.set(meta, { opacity: 0, y: -8 })
     if (titleWords.length > 0) {
       gsap.set(titleWords, {
@@ -375,7 +385,7 @@ export function setupDestinationTitlesAnimation(
   })
 
   cards.forEach((card, cardIdx) => {
-    const cardStartTime = cardIdx * 0.22 // Stagger between cards
+    const cardStartTime = cardIdx * 0.2 // Stagger between cards
 
     const meta = card.querySelector<HTMLElement>('.destination-card-meta')
     const titleWords = card.querySelectorAll<HTMLElement>('.destination-card-title .word-inner')
@@ -383,11 +393,19 @@ export function setupDestinationTitlesAnimation(
     const tags = card.querySelectorAll<HTMLElement>('.destination-card-tag')
     const footer = card.querySelector<HTMLElement>('.destination-card-footer')
 
+    // 3D tumble card entrance
+    masterTl.fromTo(
+      card,
+      { rotateX: 8, scale: 0.95, opacity: 0.35, y: 28 },
+      { rotateX: 0, scale: 1, opacity: 1, y: 0, duration: 0.85, ease: 'power3.out' },
+      cardStartTime
+    )
+
     if (meta) {
       masterTl.to(
         meta,
         { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        cardStartTime
+        cardStartTime + 0.05
       )
     }
 
@@ -402,7 +420,7 @@ export function setupDestinationTitlesAnimation(
           stagger: 0.05,
           ease: 'power3.out',
         },
-        cardStartTime + 0.1
+        cardStartTime + 0.12
       )
     }
 
@@ -410,7 +428,7 @@ export function setupDestinationTitlesAnimation(
       masterTl.to(
         desc,
         { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-        cardStartTime + 0.3
+        cardStartTime + 0.28
       )
     }
 
@@ -424,7 +442,7 @@ export function setupDestinationTitlesAnimation(
           stagger: 0.03,
           ease: 'power2.out',
         },
-        cardStartTime + 0.38
+        cardStartTime + 0.36
       )
     }
 
@@ -432,7 +450,7 @@ export function setupDestinationTitlesAnimation(
       masterTl.to(
         footer,
         { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        cardStartTime + 0.45
+        cardStartTime + 0.44
       )
     }
   })
@@ -465,6 +483,7 @@ export function setupExperiencesCardsAnimation(
       const subtitle = card.querySelector<HTMLElement>('.experience-card-subtitle')
       const desc = card.querySelector<HTMLElement>('.experience-card-desc')
 
+      gsap.set(card, { transformStyle: 'preserve-3d', transformOrigin: '50% 50%' })
       if (titleWords.length > 0) {
         gsap.set(titleWords, {
           opacity: 0,
@@ -480,6 +499,14 @@ export function setupExperiencesCardsAnimation(
         defaults: { ease: 'power3.out' },
       })
 
+      // 3D tumble card entrance
+      cardTl.fromTo(
+        card,
+        { rotateX: 6, scale: 0.96, opacity: 0.35, y: 20 },
+        { rotateX: 0, scale: 1, opacity: 1, y: 0, duration: 0.75, ease: 'power3.out' },
+        0
+      )
+
       if (titleWords.length > 0) {
         cardTl.to(
           titleWords,
@@ -491,14 +518,14 @@ export function setupExperiencesCardsAnimation(
             stagger: 0.04,
             ease: 'power3.out',
           },
-          0
+          0.06
         )
       }
       if (subtitle) {
-        cardTl.to(subtitle, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.15)
+        cardTl.to(subtitle, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.16)
       }
       if (desc) {
-        cardTl.to(desc, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, 0.25)
+        cardTl.to(desc, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, 0.26)
       }
 
       const tr = ScrollTrigger.create({
@@ -520,6 +547,7 @@ export function setupExperiencesCardsAnimation(
     const subtitle = card.querySelector<HTMLElement>('.experience-card-subtitle')
     const desc = card.querySelector<HTMLElement>('.experience-card-desc')
 
+    gsap.set(card, { transformStyle: 'preserve-3d', transformOrigin: '50% 50%' })
     if (titleWords.length > 0) {
       gsap.set(titleWords, {
         opacity: 0,
@@ -543,6 +571,14 @@ export function setupExperiencesCardsAnimation(
     const subtitle = card.querySelector<HTMLElement>('.experience-card-subtitle')
     const desc = card.querySelector<HTMLElement>('.experience-card-desc')
 
+    // 3D tumble card entrance
+    masterTl.fromTo(
+      card,
+      { rotateX: 8, scale: 0.95, opacity: 0.35, y: 26 },
+      { rotateX: 0, scale: 1, opacity: 1, y: 0, duration: 0.85, ease: 'power3.out' },
+      cardStartTime
+    )
+
     if (titleWords.length > 0) {
       masterTl.to(
         titleWords,
@@ -554,7 +590,7 @@ export function setupExperiencesCardsAnimation(
           stagger: 0.04,
           ease: 'power3.out',
         },
-        cardStartTime
+        cardStartTime + 0.08
       )
     }
 
@@ -562,7 +598,7 @@ export function setupExperiencesCardsAnimation(
       masterTl.to(
         subtitle,
         { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        cardStartTime + 0.15
+        cardStartTime + 0.18
       )
     }
 
@@ -570,7 +606,7 @@ export function setupExperiencesCardsAnimation(
       masterTl.to(
         desc,
         { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' },
-        cardStartTime + 0.25
+        cardStartTime + 0.28
       )
     }
   })
@@ -582,3 +618,103 @@ export function setupExperiencesCardsAnimation(
     onLeaveBack: () => masterTl.reverse(),
   })
 }
+
+export interface TumbleOptions {
+  isHero?: boolean
+  rotateX?: number
+  rotateY?: number
+  initialScale?: number
+  initialY?: number
+  initialOpacity?: number
+  duration?: number
+  startOffset?: string
+}
+
+/**
+ * Premium cinematic 3D tumble entrance animation for media wrappers (videos, posters, image containers).
+ * Rotates the visual slightly on the X axis, combining scale-up and opacity reveal as it enters the viewport.
+ */
+export function setupMediaTumbleAnimation(
+  sectionEl: HTMLElement,
+  mediaEl: HTMLElement,
+  options: TumbleOptions = {}
+): ScrollTrigger | null {
+  if (isReducedMotion()) {
+    gsap.set(mediaEl, { rotateX: 0, rotateY: 0, scale: 1, y: 0, opacity: 1 })
+    return null
+  }
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024
+  const rotateX = options.rotateX ?? (isMobile ? 6 : 10)
+  const rotateY = options.rotateY ?? 0
+  const initialScale = options.initialScale ?? (isMobile ? 0.96 : 0.94)
+  const initialY = options.initialY ?? (isMobile ? 22 : 36)
+  const initialOpacity = options.initialOpacity ?? 0.45
+  const duration = options.duration ?? (isMobile ? 0.85 : 1.15)
+  const startOffset = options.startOffset ?? 'top 82%'
+
+  // Ensure parent has 3D perspective and media wrapper has preserve-3d
+  gsap.set(sectionEl, { perspective: 1200 })
+  gsap.set(mediaEl, {
+    transformStyle: 'preserve-3d',
+    transformOrigin: '50% 50%',
+  })
+
+  if (options.isHero) {
+    // Hero entrance on initial load
+    gsap.fromTo(
+      mediaEl,
+      {
+        rotateX,
+        rotateY,
+        scale: initialScale,
+        y: initialY,
+        opacity: initialOpacity,
+      },
+      {
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1,
+        y: 0,
+        opacity: 1,
+        duration: 1.25,
+        ease: 'power3.out',
+        delay: 0.15,
+      }
+    )
+    return null
+  }
+
+  const tl = gsap.timeline({
+    paused: true,
+    defaults: { ease: 'power3.out' },
+  })
+
+  tl.fromTo(
+    mediaEl,
+    {
+      rotateX,
+      rotateY,
+      scale: initialScale,
+      y: initialY,
+      opacity: initialOpacity,
+    },
+    {
+      rotateX: 0,
+      rotateY: 0,
+      scale: 1,
+      y: 0,
+      opacity: 1,
+      duration: duration,
+      ease: 'power3.out',
+    }
+  )
+
+  return ScrollTrigger.create({
+    trigger: sectionEl,
+    start: startOffset,
+    onEnter: () => tl.play(),
+    onLeaveBack: () => tl.reverse(),
+  })
+}
+

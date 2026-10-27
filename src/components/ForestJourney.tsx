@@ -3,63 +3,50 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Compass, ChevronRight, Eye, Shield, Sparkles } from 'lucide-react'
 import WordReveal from './WordReveal'
-import { setupSceneTextAnimation } from '../utils/textAnimations'
+import {
+  setupSceneTextAnimation,
+  isReducedMotion,
+  setupMediaTumbleAnimation,
+} from '../utils/textAnimations'
 
 gsap.registerPlugin(ScrollTrigger)
 
-interface ForestJourneyProps {
-  onPlanSafari: () => void
-}
-
-export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // Section 5 refs
-  const sec5Ref = useRef<HTMLDivElement>(null)
-  const sec5BgRef = useRef<HTMLImageElement>(null)
-  const sec5SunbeamsRef = useRef<HTMLDivElement>(null)
-  const sec5LeavesLeftRef = useRef<HTMLDivElement>(null)
-  const sec5LeavesRightRef = useRef<HTMLDivElement>(null)
-
-  // Section 6 refs (Wildlife Reveal)
-  const sec6Ref = useRef<HTMLDivElement>(null)
-  const sec6ImageRef = useRef<HTMLImageElement>(null)
-  const sec6FoliageLeftRef = useRef<HTMLDivElement>(null)
-  const sec6FoliageRightRef = useRef<HTMLDivElement>(null)
-  const sec6ContentRef = useRef<HTMLDivElement>(null)
-
-  // Section 7 refs (Into the Wilderness)
-  const sec7Ref = useRef<HTMLDivElement>(null)
-  const sec7ImageRef = useRef<HTMLImageElement>(null)
-  const sec7MistRef = useRef<HTMLDivElement>(null)
-  const sec7ContentRef = useRef<HTMLDivElement>(null)
-
-  // Section 8 refs (Your Forest Escape)
-  const sec8Ref = useRef<HTMLDivElement>(null)
-  const sec8ImageRef = useRef<HTMLImageElement>(null)
-  const sec8ContentRef = useRef<HTMLDivElement>(null)
+// =========================================================================
+// SECTION: ENTER THE FOREST (Image Section - Deep Canopy)
+// =========================================================================
+export function ForestCanopySection() {
+  const secRef = useRef<HTMLDivElement>(null)
+  const mediaContainerRef = useRef<HTMLDivElement>(null)
+  const bgRef = useRef<HTMLImageElement>(null)
+  const sunbeamsRef = useRef<HTMLDivElement>(null)
+  const leavesLeftRef = useRef<HTMLDivElement>(null)
+  const leavesRightRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (isReduced) return
+    let tumbleTrigger: ScrollTrigger | null = null
+    if (secRef.current && mediaContainerRef.current) {
+      tumbleTrigger = setupMediaTumbleAnimation(secRef.current, mediaContainerRef.current)
+    }
+
+    if (isReducedMotion()) {
+      return () => {
+        if (tumbleTrigger) tumbleTrigger.kill()
+      }
+    }
 
     const mm = gsap.matchMedia()
 
-    // ----------------------------------------------------
-    // DESKTOP: Full layered 3D parallax & volumetric atmospheric effects
-    // ----------------------------------------------------
     mm.add('(min-width: 1024px)', () => {
-      // SECTION 5: ENTER THE FOREST (Layered Parallax)
-      if (sec5Ref.current && sec5BgRef.current) {
+      if (secRef.current && bgRef.current) {
         gsap.fromTo(
-          sec5BgRef.current,
+          bgRef.current,
           { y: '-10%', scale: 1.15 },
           {
             y: '10%',
             scale: 1.0,
             ease: 'none',
             scrollTrigger: {
-              trigger: sec5Ref.current,
+              trigger: secRef.current,
               start: 'top bottom',
               end: 'bottom top',
               scrub: 1.2,
@@ -67,16 +54,16 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           }
         )
 
-        if (sec5SunbeamsRef.current) {
+        if (sunbeamsRef.current) {
           gsap.fromTo(
-            sec5SunbeamsRef.current,
+            sunbeamsRef.current,
             { opacity: 0.3, rotation: -4 },
             {
               opacity: 0.85,
               rotation: 2,
               ease: 'none',
               scrollTrigger: {
-                trigger: sec5Ref.current,
+                trigger: secRef.current,
                 start: 'top 80%',
                 end: 'bottom 20%',
                 scrub: 1,
@@ -85,16 +72,16 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           )
         }
 
-        if (sec5LeavesLeftRef.current) {
+        if (leavesLeftRef.current) {
           gsap.fromTo(
-            sec5LeavesLeftRef.current,
+            leavesLeftRef.current,
             { y: '25%', x: '-5%' },
             {
               y: '-25%',
               x: '0%',
               ease: 'none',
               scrollTrigger: {
-                trigger: sec5Ref.current,
+                trigger: secRef.current,
                 start: 'top bottom',
                 end: 'bottom top',
                 scrub: 0.8,
@@ -103,16 +90,16 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           )
         }
 
-        if (sec5LeavesRightRef.current) {
+        if (leavesRightRef.current) {
           gsap.fromTo(
-            sec5LeavesRightRef.current,
+            leavesRightRef.current,
             { y: '30%', x: '5%' },
             {
               y: '-30%',
               x: '0%',
               ease: 'none',
               scrollTrigger: {
-                trigger: sec5Ref.current,
+                trigger: secRef.current,
                 start: 'top bottom',
                 end: 'bottom top',
                 scrub: 0.8,
@@ -121,185 +108,62 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           )
         }
 
-        setupSceneTextAnimation(sec5Ref.current, { headingRestingTracking: '-0.02em' })
-      }
-
-      // SECTION 6: WILDLIFE REVEAL (Layered Foliage Parting)
-      if (sec6Ref.current && sec6ImageRef.current) {
-        gsap.fromTo(
-          sec6ImageRef.current,
-          { scale: 1.15, filter: 'brightness(0.75)' },
-          {
-            scale: 1.0,
-            filter: 'brightness(1)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sec6Ref.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1,
-            },
-          }
-        )
-
-        if (sec6FoliageLeftRef.current) {
-          gsap.fromTo(
-            sec6FoliageLeftRef.current,
-            { x: '0%', opacity: 1 },
-            {
-              x: '-25%',
-              opacity: 0.4,
-              ease: 'power1.out',
-              scrollTrigger: {
-                trigger: sec6Ref.current,
-                start: 'top 70%',
-                end: 'center center',
-                scrub: 1,
-              },
-            }
-          )
-        }
-
-        if (sec6FoliageRightRef.current) {
-          gsap.fromTo(
-            sec6FoliageRightRef.current,
-            { x: '0%', opacity: 1 },
-            {
-              x: '25%',
-              opacity: 0.4,
-              ease: 'power1.out',
-              scrollTrigger: {
-                trigger: sec6Ref.current,
-                start: 'top 70%',
-                end: 'center center',
-                scrub: 1,
-              },
-            }
-          )
-        }
-
-        setupSceneTextAnimation(sec6Ref.current, { headingRestingTracking: 'normal' })
-      }
-
-      // SECTION 7: INTO THE WILDERNESS (River & Trail Parallax)
-      if (sec7Ref.current && sec7ImageRef.current) {
-        gsap.fromTo(
-          sec7ImageRef.current,
-          { scale: 1.14, y: '-8%' },
-          {
-            scale: 1.0,
-            y: '8%',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sec7Ref.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1.2,
-            },
-          }
-        )
-
-        if (sec7MistRef.current) {
-          gsap.fromTo(
-            sec7MistRef.current,
-            { x: '-10%', opacity: 0.3 },
-            {
-              x: '10%',
-              opacity: 0.7,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: sec7Ref.current,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: 1,
-              },
-            }
-          )
-        }
-
-        setupSceneTextAnimation(sec7Ref.current, { headingRestingTracking: '-0.01em' })
-      }
-
-      // SECTION 8: YOUR FOREST ESCAPE (Lodge Sanctuary)
-      if (sec8Ref.current && sec8ImageRef.current) {
-        gsap.fromTo(
-          sec8ImageRef.current,
-          { scale: 1.08, filter: 'brightness(0.85)' },
-          {
-            scale: 1.0,
-            filter: 'brightness(1)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sec8Ref.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1.2,
-            },
-          }
-        )
-
-        setupSceneTextAnimation(sec8Ref.current, { headingRestingTracking: '-0.02em' })
+        setupSceneTextAnimation(secRef.current, { headingRestingTracking: '-0.02em' })
       }
     })
 
-    // ----------------------------------------------------
-    // MOBILE: Smooth, lightweight zoom & gentle entrance without heavy compositing
-    // ----------------------------------------------------
     mm.add('(max-width: 1023px)', () => {
-      const sections = [
-        { ref: sec5Ref, imgRef: sec5BgRef },
-        { ref: sec6Ref, imgRef: sec6ImageRef },
-        { ref: sec7Ref, imgRef: sec7ImageRef },
-        { ref: sec8Ref, imgRef: sec8ImageRef },
-      ]
-
-      sections.forEach(({ ref, imgRef }) => {
-        if (ref.current && imgRef.current) {
-          gsap.fromTo(
-            imgRef.current,
-            { scale: 1.06 },
-            {
-              scale: 1.0,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: ref.current,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: 0.6,
-              },
-            }
-          )
-          setupSceneTextAnimation(ref.current)
-        }
-      })
+      if (secRef.current && bgRef.current) {
+        gsap.fromTo(
+          bgRef.current,
+          { scale: 1.06 },
+          {
+            scale: 1.0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: secRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.6,
+            },
+          }
+        )
+        setupSceneTextAnimation(secRef.current)
+      }
     })
 
-    return () => mm.revert()
+    return () => {
+      if (tumbleTrigger) tumbleTrigger.kill()
+      mm.revert()
+    }
   }, [])
 
   return (
-    <div ref={containerRef} className="relative w-full bg-[#060b08] overflow-hidden">
-      {/* ========================================================================= */}
-      {/* SECTION 5: ENTER THE FOREST                                               */}
-      {/* ========================================================================= */}
-      <section
-        ref={sec5Ref}
-        id="section-forest-canopy"
-        className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden"
+    <section
+      ref={secRef}
+      id="section-forest-canopy"
+      className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+      style={{ perspective: '1200px' }}
+    >
+      {/* Background Media Container with 3D Tumble */}
+      <div
+        ref={mediaContainerRef}
+        className="absolute inset-0 w-full h-full overflow-hidden will-change-transform"
+        style={{ transformStyle: 'preserve-3d' }}
       >
-        {/* Layer 1: Background Misty Ancient Canopy */}
+        {/* Background Misty Ancient Canopy Image */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <img
-            ref={sec5BgRef}
+            ref={bgRef}
             src="/images/forest-canopy.jpg"
             alt="Ancient tropical rainforest canopy with morning sunlight"
             className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
           />
         </div>
 
-        {/* Layer 2: Ethereal Volumetric Sunlight Rays & Mist Drift */}
+        {/* Volumetric Sunlight Rays Layer */}
         <div
-          ref={sec5SunbeamsRef}
+          ref={sunbeamsRef}
           className="absolute inset-0 pointer-events-none mix-blend-screen opacity-50 will-change-transform"
           style={{
             background:
@@ -307,14 +171,14 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           }}
         />
 
-        {/* Layer 3: Edge Vignette & Deep Forest Haze */}
+        {/* Vignettes & Atmospheric Lighting */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#060b08] via-transparent to-[#060b08]/80 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#060b08]/70 via-transparent to-[#060b08]/70 pointer-events-none" />
         <div className="absolute inset-0 film-grain pointer-events-none opacity-30" />
 
-        {/* Layer 4: Foreground Framing Foliage (Parallax Left - Desktop/Tablet only) */}
+        {/* Foreground Framing Foliage (Parallax Left - Desktop/Tablet) */}
         <div
-          ref={sec5LeavesLeftRef}
+          ref={leavesLeftRef}
           className="hidden sm:block absolute -left-12 bottom-0 w-52 sm:w-80 md:w-[480px] h-[380px] sm:h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-75 sm:opacity-90"
         >
           <svg viewBox="0 0 400 500" className="w-full h-full fill-[#040805]">
@@ -324,9 +188,9 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           </svg>
         </div>
 
-        {/* Layer 5: Foreground Framing Foliage (Parallax Right - Desktop/Tablet only) */}
+        {/* Foreground Framing Foliage (Parallax Right - Desktop/Tablet) */}
         <div
-          ref={sec5LeavesRightRef}
+          ref={leavesRightRef}
           className="hidden sm:block absolute -right-12 bottom-0 w-52 sm:w-80 md:w-[480px] h-[380px] sm:h-[550px] pointer-events-none select-none z-10 will-change-transform opacity-75 sm:opacity-90"
         >
           <svg viewBox="0 0 400 500" className="w-full h-full fill-[#040805]">
@@ -335,40 +199,156 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
             <path d="M420,480 C310,440 190,360 160,240 C210,320 290,410 400,460 Z" opacity="0.6" fill="#0c1811" />
           </svg>
         </div>
+      </div>
 
-        {/* Minimal Editorial Text */}
-        <div className="scene-content relative z-20 max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-6">
-            <Compass className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
-              05 // Deep Canopy
-            </span>
-          </div>
-
-          <WordReveal
-            as="h2"
-            className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-tight drop-shadow-2xl"
-            text="Enter The Forest"
-          />
-
-          <p className="scene-subtitle mt-3 sm:mt-4 font-sans-ui text-sm sm:text-base text-[#f7f4ed]/80 font-light tracking-[0.02em] sm:tracking-[0.04em] max-w-lg mx-auto leading-relaxed drop-shadow-md">
-            Volumetric dawn rays filtering through ancient mahogany and emerald moss.
-          </p>
+      {/* Editorial Content */}
+      <div className="scene-content relative z-20 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-6">
+          <Compass className="w-3.5 h-3.5 text-[#c5a059]" />
+          <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium font-mono">
+            02 // Deep Canopy
+          </span>
         </div>
-      </section>
 
-      {/* ========================================================================= */}
-      {/* SECTION 6: WILDLIFE REVEAL                                                */}
-      {/* ========================================================================= */}
-      <section
-        ref={sec6Ref}
-        id="section-wildlife-reveal"
-        className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+        <WordReveal
+          as="h2"
+          className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-tight drop-shadow-2xl"
+          text="Enter The Forest"
+        />
+
+        <p className="scene-subtitle mt-3 sm:mt-4 font-sans-ui text-sm sm:text-base text-[#f7f4ed]/80 font-light tracking-[0.02em] sm:tracking-[0.04em] max-w-lg mx-auto leading-relaxed drop-shadow-md">
+          Volumetric dawn rays filtering through ancient sal trees, bamboo groves, and emerald moss.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+// =========================================================================
+// SECTION: WILDLIFE REVEAL (Image Section - Royal Bengal Tiger)
+// =========================================================================
+export function WildlifeTigerSection() {
+  const secRef = useRef<HTMLDivElement>(null)
+  const mediaContainerRef = useRef<HTMLDivElement>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
+  const foliageLeftRef = useRef<HTMLDivElement>(null)
+  const foliageRightRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    let tumbleTrigger: ScrollTrigger | null = null
+    if (secRef.current && mediaContainerRef.current) {
+      tumbleTrigger = setupMediaTumbleAnimation(secRef.current, mediaContainerRef.current)
+    }
+
+    if (isReducedMotion()) {
+      return () => {
+        if (tumbleTrigger) tumbleTrigger.kill()
+      }
+    }
+
+    const mm = gsap.matchMedia()
+
+    mm.add('(min-width: 1024px)', () => {
+      if (secRef.current && imgRef.current) {
+        gsap.fromTo(
+          imgRef.current,
+          { scale: 1.15, filter: 'brightness(0.75)' },
+          {
+            scale: 1.0,
+            filter: 'brightness(1)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: secRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1,
+            },
+          }
+        )
+
+        if (foliageLeftRef.current) {
+          gsap.fromTo(
+            foliageLeftRef.current,
+            { x: '0%', opacity: 1 },
+            {
+              x: '-25%',
+              opacity: 0.4,
+              ease: 'power1.out',
+              scrollTrigger: {
+                trigger: secRef.current,
+                start: 'top 70%',
+                end: 'center center',
+                scrub: 1,
+              },
+            }
+          )
+        }
+
+        if (foliageRightRef.current) {
+          gsap.fromTo(
+            foliageRightRef.current,
+            { x: '0%', opacity: 1 },
+            {
+              x: '25%',
+              opacity: 0.4,
+              ease: 'power1.out',
+              scrollTrigger: {
+                trigger: secRef.current,
+                start: 'top 70%',
+                end: 'center center',
+                scrub: 1,
+              },
+            }
+          )
+        }
+
+        setupSceneTextAnimation(secRef.current, { headingRestingTracking: 'normal' })
+      }
+    })
+
+    mm.add('(max-width: 1023px)', () => {
+      if (secRef.current && imgRef.current) {
+        gsap.fromTo(
+          imgRef.current,
+          { scale: 1.06 },
+          {
+            scale: 1.0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: secRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.6,
+            },
+          }
+        )
+        setupSceneTextAnimation(secRef.current)
+      }
+    })
+
+    return () => {
+      if (tumbleTrigger) tumbleTrigger.kill()
+      mm.revert()
+    }
+  }, [])
+
+  return (
+    <section
+      ref={secRef}
+      id="section-wildlife-tiger"
+      className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+      style={{ perspective: '1200px' }}
+    >
+      {/* Background Media Container with 3D Tumble */}
+      <div
+        ref={mediaContainerRef}
+        className="absolute inset-0 w-full h-full overflow-hidden will-change-transform"
+        style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Full-bleed Majestic Wildlife Image */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <img
-            ref={sec6ImageRef}
+            ref={imgRef}
             src="/images/wildlife-tiger.jpg"
             alt="Royal Bengal Tiger gazing through jungle foliage"
             className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
@@ -377,7 +357,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
 
         {/* Parting Foreground Foliage Overlay (Left) */}
         <div
-          ref={sec6FoliageLeftRef}
+          ref={foliageLeftRef}
           className="absolute inset-y-0 left-0 w-1/2 pointer-events-none select-none z-10 will-change-transform bg-gradient-to-r from-[#040805] via-[#040805]/70 to-transparent opacity-50 sm:opacity-100"
         >
           <div className="w-full h-full opacity-60 film-grain" />
@@ -385,7 +365,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
 
         {/* Parting Foreground Foliage Overlay (Right) */}
         <div
-          ref={sec6FoliageRightRef}
+          ref={foliageRightRef}
           className="absolute inset-y-0 right-0 w-1/2 pointer-events-none select-none z-10 will-change-transform bg-gradient-to-l from-[#040805] via-[#040805]/70 to-transparent opacity-50 sm:opacity-100"
         >
           <div className="w-full h-full opacity-60 film-grain" />
@@ -394,43 +374,137 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         {/* Ambient Vignette & Shadow Grading */}
         <div className="absolute inset-0 bg-radial-vignette opacity-80 pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#060b08] via-[#060b08]/50 to-transparent pointer-events-none" />
+      </div>
 
-        {/* Minimalist Wildlife Caption Overlay (Positioned Bottom-Left) */}
-        <div
-          ref={sec6ContentRef}
-          className="scene-content absolute left-4 right-4 sm:left-12 sm:right-auto md:left-20 bottom-8 sm:bottom-24 z-20 max-w-xl text-left"
-        >
-          <div className="scene-pill inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/70 backdrop-blur-md mb-3 sm:mb-4">
-            <Eye className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
-              06 // The Sovereign Gaze
-            </span>
-          </div>
-
-          <WordReveal
-            as="h3"
-            className="scene-heading font-serif-luxury text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f7f4ed] leading-tight drop-shadow-2xl"
-            text="Nature's Apex"
-          />
-
-          <p className="scene-subtitle mt-2 sm:mt-3 font-sans-ui text-xs sm:text-base text-[#f7f4ed]/85 font-light leading-relaxed max-w-md drop-shadow-md">
-            Protected deep inside the sanctuary. Where shadows breathe and amber eyes watch in absolute silence.
-          </p>
+      {/* Minimalist Wildlife Caption Overlay (Positioned Bottom-Left) */}
+      <div className="scene-content absolute left-4 right-4 sm:left-12 sm:right-auto md:left-20 bottom-8 sm:bottom-24 z-20 max-w-xl text-left">
+        <div className="scene-pill inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/70 backdrop-blur-md mb-3 sm:mb-4">
+          <Eye className="w-3.5 h-3.5 text-[#c5a059]" />
+          <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium font-mono">
+            04 // Apex Predator
+          </span>
         </div>
-      </section>
 
-      {/* ========================================================================= */}
-      {/* SECTION 7: INTO THE WILDERNESS (River & Wooden Trail)                     */}
-      {/* ========================================================================= */}
-      <section
-        ref={sec7Ref}
-        id="section-forest-river"
-        className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+        <WordReveal
+          as="h3"
+          className="scene-heading font-serif-luxury text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f7f4ed] leading-tight drop-shadow-2xl"
+          text="The Royal Bengal Tiger"
+        />
+
+        <p className="scene-subtitle mt-2 sm:mt-3 font-sans-ui text-xs sm:text-base text-[#f7f4ed]/85 font-light leading-relaxed max-w-md drop-shadow-md">
+          Undisputed sovereign of the Indian jungle. Protected deep inside core reserves where shadows breathe and amber eyes watch in absolute stillness.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+// =========================================================================
+// SECTION: INTO THE WILDERNESS (Image Section - Riverine Corridors)
+// =========================================================================
+export function ForestRiverSection() {
+  const secRef = useRef<HTMLDivElement>(null)
+  const mediaContainerRef = useRef<HTMLDivElement>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
+  const mistRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    let tumbleTrigger: ScrollTrigger | null = null
+    if (secRef.current && mediaContainerRef.current) {
+      tumbleTrigger = setupMediaTumbleAnimation(secRef.current, mediaContainerRef.current)
+    }
+
+    if (isReducedMotion()) {
+      return () => {
+        if (tumbleTrigger) tumbleTrigger.kill()
+      }
+    }
+
+    const mm = gsap.matchMedia()
+
+    mm.add('(min-width: 1024px)', () => {
+      if (secRef.current && imgRef.current) {
+        gsap.fromTo(
+          imgRef.current,
+          { scale: 1.14, y: '-8%' },
+          {
+            scale: 1.0,
+            y: '8%',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: secRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.2,
+            },
+          }
+        )
+
+        if (mistRef.current) {
+          gsap.fromTo(
+            mistRef.current,
+            { x: '-10%', opacity: 0.3 },
+            {
+              x: '10%',
+              opacity: 0.7,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: secRef.current,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 1,
+              },
+            }
+          )
+        }
+
+        setupSceneTextAnimation(secRef.current, { headingRestingTracking: '-0.01em' })
+      }
+    })
+
+    mm.add('(max-width: 1023px)', () => {
+      if (secRef.current && imgRef.current) {
+        gsap.fromTo(
+          imgRef.current,
+          { scale: 1.06 },
+          {
+            scale: 1.0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: secRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.6,
+            },
+          }
+        )
+        setupSceneTextAnimation(secRef.current)
+      }
+    })
+
+    return () => {
+      if (tumbleTrigger) tumbleTrigger.kill()
+      mm.revert()
+    }
+  }, [])
+
+  return (
+    <section
+      ref={secRef}
+      id="section-forest-river"
+      className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+      style={{ perspective: '1200px' }}
+    >
+      {/* Background Media Container with 3D Tumble */}
+      <div
+        ref={mediaContainerRef}
+        className="absolute inset-0 w-full h-full overflow-hidden will-change-transform"
+        style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Full-bleed River Landscape */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <img
-            ref={sec7ImageRef}
+            ref={imgRef}
             src="/images/forest-river.jpg"
             alt="Misty jungle river with mossy wooden footbridge and twilight glow"
             className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
@@ -439,7 +513,7 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
 
         {/* Ethereal Floating River Mist Layer */}
         <div
-          ref={sec7MistRef}
+          ref={mistRef}
           className="absolute inset-x-0 bottom-1/4 h-64 pointer-events-none select-none mix-blend-screen opacity-50 will-change-transform"
           style={{
             background:
@@ -447,46 +521,121 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
           }}
         />
 
-        {/* Dark Vignette & Top/Bottom Atmosphere */}
+        {/* Dark Vignette & Atmospheric Gradients */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#060b08]/80 via-transparent to-[#060b08]/90 pointer-events-none" />
         <div className="absolute inset-0 film-grain pointer-events-none opacity-30" />
+      </div>
 
-        {/* Minimal Wilderness Editorial Text */}
-        <div
-          ref={sec7ContentRef}
-          className="scene-content relative z-20 max-w-3xl mx-auto px-4 sm:px-6 text-center"
-        >
-          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-5">
-            <Shield className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
-              07 // Primordial Waterways
-            </span>
-          </div>
-
-          <WordReveal
-            as="h2"
-            className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-[#f7f4ed] tracking-[-0.01em] leading-tight drop-shadow-2xl"
-            text="Into The Wilderness"
-          />
-
-          <p className="scene-subtitle mt-3 sm:mt-4 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/85 font-light tracking-[0.02em] sm:tracking-[0.03em] max-w-lg mx-auto leading-relaxed drop-shadow-md">
-            Cross weathered wooden trails into secluded valleys untouched by time.
-          </p>
+      {/* Minimal Wilderness Editorial Text */}
+      <div className="scene-content relative z-20 max-w-3xl mx-auto px-4 sm:px-6 text-center">
+        <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/30 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-5">
+          <Shield className="w-3.5 h-3.5 text-[#c5a059]" />
+          <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium font-mono">
+            07 // Riverine Corridors
+          </span>
         </div>
-      </section>
 
-      {/* ========================================================================= */}
-      {/* SECTION 8: YOUR FOREST ESCAPE (Luxury Treehouse Lodge)                     */}
-      {/* ========================================================================= */}
-      <section
-        ref={sec8Ref}
-        id="section-forest-lodge"
-        className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+        <WordReveal
+          as="h2"
+          className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-[#f7f4ed] tracking-[-0.01em] leading-tight drop-shadow-2xl"
+          text="The River's Secret"
+        />
+
+        <p className="scene-subtitle mt-3 sm:mt-4 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/85 font-light tracking-[0.02em] sm:tracking-[0.03em] max-w-lg mx-auto leading-relaxed drop-shadow-md">
+          Cross weathered wooden trails into secluded valleys where predators and prey meet at twilight along ancient waterways.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+// =========================================================================
+// SECTION: YOUR FOREST ESCAPE (Image Section - Luxury Lodge Sanctuary)
+// =========================================================================
+export function ForestLodgeSection({ onPlanSafari }: { onPlanSafari?: () => void }) {
+  const secRef = useRef<HTMLDivElement>(null)
+  const mediaContainerRef = useRef<HTMLDivElement>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    let tumbleTrigger: ScrollTrigger | null = null
+    if (secRef.current && mediaContainerRef.current) {
+      tumbleTrigger = setupMediaTumbleAnimation(secRef.current, mediaContainerRef.current)
+    }
+
+    if (isReducedMotion()) {
+      return () => {
+        if (tumbleTrigger) tumbleTrigger.kill()
+      }
+    }
+
+    const mm = gsap.matchMedia()
+
+    mm.add('(min-width: 1024px)', () => {
+      if (secRef.current && imgRef.current) {
+        gsap.fromTo(
+          imgRef.current,
+          { scale: 1.08, filter: 'brightness(0.85)' },
+          {
+            scale: 1.0,
+            filter: 'brightness(1)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: secRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.2,
+            },
+          }
+        )
+
+        setupSceneTextAnimation(secRef.current, { headingRestingTracking: '-0.02em' })
+      }
+    })
+
+    mm.add('(max-width: 1023px)', () => {
+      if (secRef.current && imgRef.current) {
+        gsap.fromTo(
+          imgRef.current,
+          { scale: 1.06 },
+          {
+            scale: 1.0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: secRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.6,
+            },
+          }
+        )
+        setupSceneTextAnimation(secRef.current)
+      }
+    })
+
+    return () => {
+      if (tumbleTrigger) tumbleTrigger.kill()
+      mm.revert()
+    }
+  }, [])
+
+  return (
+    <section
+      ref={secRef}
+      id="section-forest-lodge"
+      className="relative w-full h-[100svh] min-h-[500px] sm:min-h-[640px] flex items-center justify-center overflow-hidden border-t border-white/5"
+      style={{ perspective: '1200px' }}
+    >
+      {/* Background Media Container with 3D Tumble */}
+      <div
+        ref={mediaContainerRef}
+        className="absolute inset-0 w-full h-full overflow-hidden will-change-transform"
+        style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Full-bleed Luxury Lodge Image */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
           <img
-            ref={sec8ImageRef}
+            ref={imgRef}
             src="/images/forest-lodge.jpg"
             alt="Luxury eco-safari treehouse lodge cantilevered over the misty canopy with lanterns"
             className="w-full h-full object-cover select-none pointer-events-none will-change-transform"
@@ -506,29 +655,28 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
         <div className="absolute inset-0 bg-radial-vignette opacity-70 pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#060b08] via-[#060b08]/60 to-transparent pointer-events-none" />
         <div className="absolute inset-0 film-grain pointer-events-none opacity-25" />
+      </div>
 
-        {/* Minimal Hero Content (Exact User Specifications) */}
-        <div
-          ref={sec8ContentRef}
-          className="scene-content relative z-20 max-w-4xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center justify-center"
-        >
-          <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/40 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-[#c5a059]" />
-            <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium">
-              08 // Sanctuary In The Clouds
-            </span>
-          </div>
+      {/* Editorial Content */}
+      <div className="scene-content relative z-20 max-w-4xl mx-auto px-4 sm:px-6 md:px-12 text-center flex flex-col items-center justify-center">
+        <div className="scene-pill inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#c5a059]/40 bg-[#060b08]/60 backdrop-blur-md mb-4 sm:mb-6">
+          <Sparkles className="w-3.5 h-3.5 text-[#c5a059]" />
+          <span className="text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#c5a059] font-medium font-mono">
+            10 // Timeless Stillness
+          </span>
+        </div>
 
-          <WordReveal
-            as="h2"
-            className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-tight drop-shadow-2xl"
-            text="Your Wild Escape Awaits"
-          />
+        <WordReveal
+          as="h2"
+          className="scene-heading font-serif-luxury text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-normal text-[#f7f4ed] tracking-[-0.02em] leading-tight drop-shadow-2xl"
+          text="A Sanctuary in the Wild"
+        />
 
-          <p className="scene-subtitle mt-4 sm:mt-5 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/90 font-light tracking-[0.02em] sm:tracking-[0.04em] max-w-xl mx-auto leading-relaxed drop-shadow-md">
-            Private cantilevered decks, starlit fire pits, and infinity plunge pools overlooking the misty jungle canopy.
-          </p>
+        <p className="scene-subtitle mt-4 sm:mt-5 font-sans-ui text-sm sm:text-base md:text-lg text-[#f7f4ed]/90 font-light tracking-[0.02em] sm:tracking-[0.04em] max-w-xl mx-auto leading-relaxed drop-shadow-md">
+          Private cantilevered decks, starlit fire pits, and untamed stillness where night brings the ancient symphony of the forest.
+        </p>
 
+        {onPlanSafari && (
           <div className="scene-cta mt-6 sm:mt-9">
             <button
               onClick={onPlanSafari}
@@ -538,8 +686,20 @@ export default function ForestJourney({ onPlanSafari }: ForestJourneyProps) {
               <ChevronRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
           </div>
-        </div>
-      </section>
+        )}
+      </div>
+    </section>
+  )
+}
+
+// Default export combining all 4 for backward compatibility
+export default function ForestJourney({ onPlanSafari }: { onPlanSafari?: () => void }) {
+  return (
+    <div className="relative w-full bg-[#060b08] overflow-hidden">
+      <ForestCanopySection />
+      <WildlifeTigerSection />
+      <ForestRiverSection />
+      <ForestLodgeSection onPlanSafari={onPlanSafari} />
     </div>
   )
 }

@@ -41,22 +41,6 @@ export default function Navbar({
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false)
-    if (id === 'scene-1') {
-      window.dispatchEvent(new CustomEvent('safari:scrollToScene', { detail: { index: 0 } }))
-      return
-    }
-    if (id === 'scene-2') {
-      window.dispatchEvent(new CustomEvent('safari:scrollToScene', { detail: { index: 1 } }))
-      return
-    }
-    if (id === 'scene-3') {
-      window.dispatchEvent(new CustomEvent('safari:scrollToScene', { detail: { index: 2 } }))
-      return
-    }
-    if (id === 'scene-4') {
-      window.dispatchEvent(new CustomEvent('safari:scrollToScene', { detail: { index: 3 } }))
-      return
-    }
     const el = document.getElementById(id)
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' })
