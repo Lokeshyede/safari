@@ -84,6 +84,7 @@ export default function CinematicStory({
 
   const [activeScene, setActiveScene] = useState(0)
   const [isInStory, setIsInStory] = useState(true)
+  const [videoFrameReady, setVideoFrameReady] = useState<boolean[]>([false, false, false, false])
 
   const scenes: SceneData[] = [
     { ...BASE_SCENES[0] },
@@ -92,11 +93,52 @@ export default function CinematicStory({
     { ...BASE_SCENES[3], onAction: onPlanSafari },
   ]
 
+  // Mark video as ready only when it has decoded a valid frame (readyState >= 2) and is actively playing
+  const handleVideoReady = useCallback((idx: number) => {
+    const v = videoRefs.current[idx]
+    if (v && v.readyState >= 2 && !v.paused) {
+      setVideoFrameReady((prev) => {
+        if (prev[idx]) return prev
+        const next = [...prev]
+        next[idx] = true
+        return next
+      })
+    }
+  }, [])
+
+  // On playback error, retain poster fallback
+  const handleVideoError = useCallback((idx: number) => {
+    setVideoFrameReady((prev) => {
+      if (!prev[idx]) return prev
+      const next = [...prev]
+      next[idx] = false
+      return next
+    })
+  }, [])
+
   // Video play/pause helpers memoized for stable references
   const playVideo = useCallback((idx: number) => {
     const v = videoRefs.current[idx]
     if (v && v.paused) {
-      v.play().catch(() => {})
+      const p = v.play()
+      if (p !== undefined) {
+        p.catch(() => {})
+      }
+    }
+  }, [])
+
+  // Early pre-warmer: sets preload='auto' and initiates playback before the scene becomes visible
+  const prepareVideo = useCallback((idx: number) => {
+    const v = videoRefs.current[idx]
+    if (!v) return
+    if (v.preload !== 'auto') {
+      v.preload = 'auto'
+    }
+    if (v.paused) {
+      const p = v.play()
+      if (p !== undefined) {
+        p.catch(() => {})
+      }
     }
   }, [])
 
@@ -145,14 +187,14 @@ export default function CinematicStory({
           end: 'bottom 40%',
           onEnter: () => {
             setActiveScene(index)
-            playVideo(index)
+            prepareVideo(index)
             BASE_SCENES.forEach((_, other) => {
               if (other !== index) pauseVideo(other)
             })
           },
           onEnterBack: () => {
             setActiveScene(index)
-            playVideo(index)
+            prepareVideo(index)
             BASE_SCENES.forEach((_, other) => {
               if (other !== index) pauseVideo(other)
             })
@@ -260,36 +302,32 @@ export default function CinematicStory({
           setActiveScene(currentScene)
         }
 
-        if (progress < 0.08) {
+        // Scene 1: active until Scene 2 circle fully covers it (~0.28)
+        if (progress < 0.28) {
           playVideo(0)
+        } else {
+          pauseVideo(0)
+        }
+
+        // Scene 2: pre-warmed right from initial scroll movement (0.005), active through Scene 2 until Scene 3 covers (~0.58)
+        if (progress >= 0.005 && progress < 0.58) {
+          prepareVideo(1)
+        } else {
           pauseVideo(1)
+        }
+
+        // Scene 3: pre-warmed early at 0.20 (well before wipe starts at 0.40), active through Scene 3 until Scene 4 covers (~0.85)
+        if (progress >= 0.20 && progress < 0.85) {
+          prepareVideo(2)
+        } else {
           pauseVideo(2)
+        }
+
+        // Scene 4: pre-warmed early at 0.52 (well before fade starts at 0.73), active through Sanctuary
+        if (progress >= 0.52) {
+          prepareVideo(3)
+        } else {
           pauseVideo(3)
-        } else if (progress < 0.38) {
-          playVideo(0)
-          playVideo(1)
-          pauseVideo(2)
-          pauseVideo(3)
-        } else if (progress < 0.44) {
-          pauseVideo(0)
-          playVideo(1)
-          pauseVideo(2)
-          pauseVideo(3)
-        } else if (progress < 0.72) {
-          pauseVideo(0)
-          playVideo(1)
-          playVideo(2)
-          pauseVideo(3)
-        } else if (progress < 0.78) {
-          pauseVideo(0)
-          pauseVideo(1)
-          playVideo(2)
-          pauseVideo(3)
-        } else if (progress <= 1.0) {
-          pauseVideo(0)
-          pauseVideo(1)
-          playVideo(2)
-          playVideo(3)
         }
       }
 
@@ -484,34 +522,40 @@ export default function CinematicStory({
         clearProps: 'transform,scale,opacity',
       })
 
-      // Setup clean per-scene trigger for video playback & active HUD tracking
+      // Setup clean per-scene triggers for early lookahead video pre-warming & active HUD tracking
       BASE_SCENES.forEach((_, idx) => {
         const scEl = sceneRefs.current[idx]
         if (!scEl) return
 
+        // 1. Lookahead pre-warming trigger: prepares and starts video BEFORE it enters viewport
         ScrollTrigger.create({
           trigger: scEl,
-          start: 'top 50%',
-          end: 'bottom 50%',
+          start: 'top 130%', // Pre-warm 30% vh before entering from bottom
+          end: 'bottom -30%', // Keep warm until 30% vh after leaving through top
           onEnter: () => {
-            setActiveScene(idx)
-            playVideo(idx)
-            BASE_SCENES.forEach((_, other) => {
-              if (other !== idx) pauseVideo(other)
-            })
+            prepareVideo(idx)
           },
           onEnterBack: () => {
-            setActiveScene(idx)
-            playVideo(idx)
-            BASE_SCENES.forEach((_, other) => {
-              if (other !== idx) pauseVideo(other)
-            })
+            prepareVideo(idx)
           },
           onLeave: () => {
             pauseVideo(idx)
           },
           onLeaveBack: () => {
             pauseVideo(idx)
+          },
+        })
+
+        // 2. Active Scene & HUD tracker: updates coordinates when scene center is in view
+        ScrollTrigger.create({
+          trigger: scEl,
+          start: 'top 50%',
+          end: 'bottom 50%',
+          onEnter: () => {
+            setActiveScene(idx)
+          },
+          onEnterBack: () => {
+            setActiveScene(idx)
           },
         })
 
@@ -605,7 +649,7 @@ export default function CinematicStory({
       mm.revert()
       ScrollTrigger.refresh()
     }
-  }, [playVideo, pauseVideo, pauseAllVideos])
+  }, [playVideo, prepareVideo, pauseVideo, pauseAllVideos, handleVideoReady])
 
   // Listen for navigation events from navbar
   useEffect(() => {
@@ -714,27 +758,33 @@ export default function CinematicStory({
               height: '100svh',
             }}
           >
-            {/* Full-bleed Video Background with Instant Poster Underlay */}
+            {/* Full-bleed Video Background with Controlled Poster Handoff */}
             <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#060b08]">
-              {/* Reliable Instant Poster Image Underlay (Eliminates black screen during buffer or slow network) */}
+              {/* 1. Underlying Poster Fallback (Guarantees no black screen or blank frame ever) */}
               <img
                 src={scene.poster}
-                alt={scene.title}
+                alt=""
+                aria-hidden="true"
                 className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
                 loading={idx === 0 ? 'eager' : 'lazy'}
               />
+
+              {/* 2. Active Video Layer (Plays seamlessly underneath controlled overlay) */}
               <video
                 ref={(el) => {
                   videoRefs.current[idx] = el
                 }}
                 src={scene.videoSrc}
-                poster={scene.poster}
                 muted
                 playsInline
                 loop
                 preload={idx === 0 ? 'auto' : 'metadata'}
                 onLoadedMetadata={() => ScrollTrigger.refresh()}
-                className="relative z-10 w-full h-full object-cover select-none pointer-events-none will-change-transform"
+                onLoadedData={() => handleVideoReady(idx)}
+                onPlaying={() => handleVideoReady(idx)}
+                onTimeUpdate={() => handleVideoReady(idx)}
+                onError={() => handleVideoError(idx)}
+                className="absolute inset-0 z-0 w-full h-full object-cover select-none pointer-events-none will-change-transform"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -742,7 +792,22 @@ export default function CinematicStory({
                 }}
               />
 
-              {/* Cinematic Gradient Overlays for High Legibility on Mobile & Desktop */}
+              {/* 3. Controlled Poster Overlay: fades out smoothly only when video is actively playing frames */}
+              <div
+                className={`absolute inset-0 z-10 transition-opacity duration-700 ease-out pointer-events-none ${
+                  videoFrameReady[idx] ? 'opacity-0' : 'opacity-100'
+                }`}
+                aria-hidden="true"
+              >
+                <img
+                  src={scene.poster}
+                  alt={scene.title}
+                  className="w-full h-full object-cover select-none pointer-events-none"
+                  loading={idx === 0 ? 'eager' : 'lazy'}
+                />
+              </div>
+
+              {/* 4. Cinematic Gradient Overlays for High Legibility on Mobile & Desktop */}
               <div className="absolute inset-0 z-20 bg-radial-vignette opacity-75 sm:opacity-75 pointer-events-none" />
               <div className="absolute inset-x-0 top-0 z-20 h-28 sm:h-40 bg-gradient-to-b from-[#060b08]/90 via-[#060b08]/50 to-transparent pointer-events-none" />
               <div className="absolute inset-x-0 bottom-0 z-20 h-36 sm:h-48 bg-gradient-to-t from-[#060b08] via-[#060b08]/60 to-transparent pointer-events-none" />
